@@ -37,24 +37,24 @@ int main()
 	double a = 1;
 	double b = 99;
 
-	cout << "Sanity check " << InteractiveNotificationsManager::Add(a, b);
+	cout << "Sanity check " << Add(a, b);
 
 	// Real check
-	HRESULT hr = InteractiveNotificationsManager::RegisterAppForNotificationSupport();
+	HRESULT hr = RegisterAppForNotificationSupport();
 	
 	if (SUCCEEDED(hr))
 	{
 		cout << "\nRegisterAppForNotificationSupport worked..." << endl;
 	}
 
-	hr = InteractiveNotificationsManager::RegisterActivator();
+	hr = RegisterActivator();
 
 	if (SUCCEEDED(hr))
 	{
 		cout << "RegisterActivator worked..." << endl;
 	}
 
-	hr = InteractiveNotificationsManager::SendTestToast();
+	hr = SendTestToast();
 
 	if (SUCCEEDED(hr))
 	{

@@ -68,7 +68,6 @@ public:
 			LPCWSTR x = data[i].Value;
 			system("start http://localhost/");
 		}
-
 		
 		return HRESULT();
 	}
@@ -78,13 +77,13 @@ CoCreatableClass(NotificationActivator);
 namespace InteractiveNotifications
 {
 
-	INTERACTIVENOTIFICATIONS_API double InteractiveNotificationsManager::Add(double a, double b)
+	INTERACTIVENOTIFICATIONS_API double Add(double a, double b)
 	{
 		// Sanity check
 		return a + b;
 	}
 
-	INTERACTIVENOTIFICATIONS_API HRESULT InteractiveNotificationsManager::RegisterAppForNotificationSupport()
+	INTERACTIVENOTIFICATIONS_API HRESULT RegisterAppForNotificationSupport()
 	{
 		CoTaskMemString appData;
 		auto hr = ::SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, appData.GetAddressOf());
@@ -122,7 +121,7 @@ namespace InteractiveNotifications
 	}
 
 	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API HRESULT InteractiveNotificationsManager::InstallShortcut(PCWSTR shortcutPath, PCWSTR exePath)
+	INTERACTIVENOTIFICATIONS_API HRESULT InstallShortcut(PCWSTR shortcutPath, PCWSTR exePath)
 	{
 		// This looks like callback hell, this should be cleaner
 		ComPtr<IShellLink> shellLink;
@@ -167,7 +166,7 @@ namespace InteractiveNotifications
 	}
 
 	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API HRESULT InteractiveNotificationsManager::RegisterComServer(PCWSTR exePath)
+	INTERACTIVENOTIFICATIONS_API HRESULT RegisterComServer(PCWSTR exePath)
 	{
 		// We don't need to worry about overflow here as ::GetModuleFileName won't
 		// return anything bigger than the max file system path (much fewer than max of DWORD).
@@ -184,7 +183,7 @@ namespace InteractiveNotifications
 	}
 
 	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API HRESULT InteractiveNotificationsManager::RegisterActivator()
+	INTERACTIVENOTIFICATIONS_API HRESULT RegisterActivator()
 	{
 		// Module<OutOfProc> needs a callback registered before it can be used.
 		// Since we don't care about when it shuts down, we'll pass an empty lambda here.
@@ -202,13 +201,13 @@ namespace InteractiveNotifications
 	}
 
 	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API void InteractiveNotificationsManager::UnregisterActivator()
+	INTERACTIVENOTIFICATIONS_API void UnregisterActivator()
 	{
 		Module<OutOfProc>::GetModule().UnregisterObjects();
 		Module<OutOfProc>::GetModule().DecrementObjectCount();
 	}
 
-	INTERACTIVENOTIFICATIONS_API HRESULT InteractiveNotificationsManager::CreateToastXml(IToastNotificationManagerStatics* toastManager, IXmlDocument** inputXml)
+	INTERACTIVENOTIFICATIONS_API HRESULT CreateToastXml(IToastNotificationManagerStatics* toastManager, IXmlDocument** inputXml)
 	{
 		*inputXml = nullptr;
 		//ComPtr<IXmlDocumentIO> toastXmlDocument;
@@ -245,7 +244,7 @@ namespace InteractiveNotifications
 	}
 
 	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API HRESULT InteractiveNotificationsManager::CreateToast(IToastNotificationManagerStatics* toastManager, IXmlDocument* xml)
+	INTERACTIVENOTIFICATIONS_API HRESULT CreateToast(IToastNotificationManagerStatics* toastManager, IXmlDocument* xml)
 	{
 		ComPtr<IToastNotifier> notifier;
 		HRESULT hr = toastManager->CreateToastNotifierWithId(HStringReference(AppId).Get(), &notifier);
@@ -327,7 +326,7 @@ namespace InteractiveNotifications
 	}
 
 	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API HRESULT InteractiveNotificationsManager::SendTestToast() {
+	INTERACTIVENOTIFICATIONS_API HRESULT SendTestToast() {
 		ComPtr<IToastNotificationManagerStatics> toastStatics;
 
 		HRESULT hr = Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_UI_Notifications_ToastNotificationManager).Get(), &toastStatics);
