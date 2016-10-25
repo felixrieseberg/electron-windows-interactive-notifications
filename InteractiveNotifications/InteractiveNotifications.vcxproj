@@ -22,7 +22,7 @@
     <ProjectGuid>{B91A1412-0DC3-44DE-B509-CBBDB2FF48D8}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>InteractiveNotifications</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
