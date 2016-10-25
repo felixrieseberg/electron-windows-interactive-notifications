@@ -58,11 +58,18 @@ class DECLSPEC_UUID("23A5B06E-20BB-4E7E-A0AC-6982ED6A6041") NotificationActivato
 {
 public:
 	virtual HRESULT STDMETHODCALLTYPE Activate(
-		_In_ LPCWSTR /*appUserModelId*/,
-		_In_ LPCWSTR /*invokedArgs*/,
-		/*_In_reads_(dataCount)*/ const NOTIFICATION_USER_INPUT_DATA* /*data*/,
-		ULONG /*dataCount*/) override
+		_In_ LPCWSTR appUserModelId,
+		_In_ LPCWSTR invokedArgs,
+		_In_reads_(dataCount) const NOTIFICATION_USER_INPUT_DATA* data,
+		ULONG dataCount) override
 	{
+		for (int i = 0; i < dataCount; i++)
+		{
+			LPCWSTR x = data[i].Value;
+			system("start http://localhost/");
+		}
+
+		
 		return HRESULT();
 	}
 };
@@ -70,6 +77,7 @@ CoCreatableClass(NotificationActivator);
 
 namespace InteractiveNotifications
 {
+
 	INTERACTIVENOTIFICATIONS_API double InteractiveNotificationsManager::Add(double a, double b)
 	{
 		// Sanity check
@@ -200,14 +208,39 @@ namespace InteractiveNotifications
 		Module<OutOfProc>::GetModule().DecrementObjectCount();
 	}
 
-	_Use_decl_annotations_
 	INTERACTIVENOTIFICATIONS_API HRESULT InteractiveNotificationsManager::CreateToastXml(IToastNotificationManagerStatics* toastManager, IXmlDocument** inputXml)
 	{
 		*inputXml = nullptr;
+		//ComPtr<IXmlDocumentIO> toastXmlDocument;
 
-		// Retrieve the xml
-		// Todo: lol this isn't even right
+		//HRESULT hr = Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_Data_Xml_Dom_XmlDocument).Get(), &toastXmlDocument);
+
+		//if (SUCCEEDED(hr))
+		//{	
+		//	HStringReference toastTemplate(
+		//		L"<toast>"
+		//		L" <visual>"
+		//		L" <binding template='ToastGeneric'>"
+		//		L" <text>Press Reply</text>"
+		//		L" </binding>"
+		//		L" </visual>"
+		//		L" <actions>"
+		//		L" <action content='reply'"
+		//		L" arguments='replyToComment'"
+		//		L" activationKind='Background'/>"
+		//		L" </actions>"
+		//		L"</toast>");
+
+		//	hr = toastXmlDocument->LoadXml(toastTemplate.Get());
+
+		//	if (SUCCEEDED(hr))
+		//	{
+		//		hr = toastXmlDocument.CopyTo(inputXml);
+		//	}
+		//}
+
 		HRESULT hr = toastManager->GetTemplateContent(ToastTemplateType_ToastImageAndText04, inputXml);
+
 		return hr;
 	}
 
@@ -296,6 +329,7 @@ namespace InteractiveNotifications
 	_Use_decl_annotations_
 	INTERACTIVENOTIFICATIONS_API HRESULT InteractiveNotificationsManager::SendTestToast() {
 		ComPtr<IToastNotificationManagerStatics> toastStatics;
+
 		HRESULT hr = Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_UI_Notifications_ToastNotificationManager).Get(), &toastStatics);
 
 		if (SUCCEEDED(hr))
@@ -307,6 +341,7 @@ namespace InteractiveNotifications
 				hr = CreateToast(toastStatics.Get(), toastXml.Get());
 			}
 		}
+
 		return hr;
 	}
 }
