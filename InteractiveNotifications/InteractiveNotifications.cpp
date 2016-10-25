@@ -85,7 +85,7 @@ namespace InteractiveNotifications
 		{
 			wchar_t shortcutPath[MAX_PATH];
 			// Todo: Don't hardcode the path
-			hr = ::PathCchCombine(shortcutPath, ARRAYSIZE(shortcutPath), appData.Get(), LR"(Microsoft\Windows\Start Menu\Programs\Slack Technologies\Slack.lnk)");
+			hr = ::PathCchCombine(shortcutPath, ARRAYSIZE(shortcutPath), appData.Get(), LR"(Microsoft\Windows\Start Menu\Lol.lnk)");
 
 			if (SUCCEEDED(hr))
 			{
@@ -254,7 +254,6 @@ namespace InteractiveNotifications
 							// This could be useful, but who knows, amirite?
 							if (SUCCEEDED(e->get_Reason(&reason)))
 							{
-								PCWSTR outputText;
 								switch (reason)
 								{
 								case ToastDismissalReason_ApplicationHidden:

@@ -16,24 +16,24 @@ namespace InteractiveNotifications {
 	class InteractiveNotificationsManager
 	{
 	public:
-		INTERACTIVENOTIFICATIONS_API HRESULT RegisterAppForNotificationSupport();
-		INTERACTIVENOTIFICATIONS_API HRESULT InstallShortcut(_In_ PCWSTR shortcutPath, _In_ PCWSTR exePath);
-		INTERACTIVENOTIFICATIONS_API HRESULT RegisterComServer(_In_ PCWSTR exePath);
+		static INTERACTIVENOTIFICATIONS_API HRESULT RegisterAppForNotificationSupport();
+		static INTERACTIVENOTIFICATIONS_API HRESULT InstallShortcut(_In_ PCWSTR shortcutPath, _In_ PCWSTR exePath);
+		static INTERACTIVENOTIFICATIONS_API HRESULT RegisterComServer(_In_ PCWSTR exePath);
 
-		INTERACTIVENOTIFICATIONS_API HRESULT RegisterActivator();
-		INTERACTIVENOTIFICATIONS_API void UnregisterActivator();
+		static INTERACTIVENOTIFICATIONS_API HRESULT RegisterActivator();
+		static INTERACTIVENOTIFICATIONS_API void UnregisterActivator();
 		
 		// Sample stuff - I'm not sure that the toast stuff needs to be here
-		INTERACTIVENOTIFICATIONS_API HRESULT SendTestToast();
+		static INTERACTIVENOTIFICATIONS_API HRESULT SendTestToast();
 
 		// Sanity check
 		static INTERACTIVENOTIFICATIONS_API double Add(double a, double b);
 	private:
-		INTERACTIVENOTIFICATIONS_API HRESULT CreateToastXml(
+		static INTERACTIVENOTIFICATIONS_API HRESULT CreateToastXml(
 			_In_ ABI::Windows::UI::Notifications::IToastNotificationManagerStatics* toastManager,
 			_COM_Outptr_ ABI::Windows::Data::Xml::Dom::IXmlDocument** xml);
 
-		INTERACTIVENOTIFICATIONS_API HRESULT CreateToast(
+		static INTERACTIVENOTIFICATIONS_API HRESULT CreateToast(
 			_In_ ABI::Windows::UI::Notifications::IToastNotificationManagerStatics* toastManager,
 			_In_ ABI::Windows::Data::Xml::Dom::IXmlDocument* xml
 		);
