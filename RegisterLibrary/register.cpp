@@ -1,13 +1,6 @@
-// InteractiveNotifications.cpp : Defines the exported functions for the DLL application.
-//
-
 #include "stdafx.h"
-#include "InteractiveNotifications.h"
 #include "NotificationActivationCallback.h"
 
-#include <fstream>
-#include <string>
-#include <iostream>
 #include <SDKDDKVer.h>
 #include <Windows.h>
 #include <Psapi.h>
@@ -18,9 +11,18 @@
 #include <propvarutil.h>
 #include <propkey.h>
 #include <wrl.h>
+#include <atlstr.h>
 #include <wrl\wrappers\corewrappers.h>
 #include <windows.ui.notifications.h>
 
+using namespace ABI::Windows::Data::Xml::Dom;
+using namespace ABI::Windows::UI::Notifications;
+using namespace Microsoft::WRL;
+using namespace Microsoft::WRL::Wrappers;
+
+// Correct flow
+// RegisterAppForNotificationSupport()
+// RegisterActivator()
 
 // Correct flow
 // RegisterAppForNotificationSupport()
@@ -33,12 +35,6 @@
 //  Used to CoCreate an INotificationActivationCallback interface to notify about toast activations.
 EXTERN_C const PROPERTYKEY DECLSPEC_SELECTANY PKEY_AppUserModel_ToastActivatorCLSID = { { 0x9F4C2855, 0x9F79, 0x4B39,{ 0xA8, 0xD0, 0xE1, 0xD4, 0x2D, 0xE1, 0xD5, 0xF3 } }, 26 };
 
-
-using namespace ABI::Windows::Data::Xml::Dom;
-using namespace ABI::Windows::UI::Notifications;
-using namespace Microsoft::WRL;
-using namespace Microsoft::WRL::Wrappers;
-
 struct CoTaskMemStringTraits
 {
 	typedef PWSTR Type;
@@ -50,14 +46,13 @@ struct CoTaskMemStringTraits
 typedef HandleT<CoTaskMemStringTraits> CoTaskMemString;
 
 // Todo: Make this magically dynamic
-const wchar_t AppId[] = L"Felix.Lol.Test";
-const wchar_t Shortcut[] = LR"(Microsoft\Windows\Start Menu\Lol.lnk)";
+const wchar_t AppId[] = L"Felix.Lol.IamDoingThings";
 
 // For the app to be activated from Action Center, it needs to provide a COM server to be called
 // when the notification is activated.  The CLSID of the object needs to be registered with the
 // OS via its shortcut so that it knows who to call later.
-class DECLSPEC_UUID("D4B2D0CA-5D93-41CF-9A4C-721782B3246E") NotificationActivator WrlSealed
-: public RuntimeClass < RuntimeClassFlags<ClassicCom>,
+class DECLSPEC_UUID("23A5B06E-20BB-4E7E-A0AC-6982ED6A6041") NotificationActivator WrlSealed
+	: public RuntimeClass < RuntimeClassFlags<ClassicCom>,
 	INotificationActivationCallback > WrlFinal
 {
 public:
@@ -67,10 +62,14 @@ public:
 		_In_reads_(dataCount) const NOTIFICATION_USER_INPUT_DATA* data,
 		ULONG dataCount) override
 	{
-		//std::string countStr = "start http://localhost/" + std::to_string(dataCount);
-		//system(countStr.c_str());
-		system("start notepad.exe");
-		
+		//for (int i = 0; i < dataCount; i++)
+		//{
+		//	wprintf(data[i].Key);
+		//	wprintf(data[i].Value);
+		//}
+
+		system("start http://www.google.com/");
+
 		return HRESULT();
 	}
 };
@@ -79,51 +78,14 @@ CoCreatableClass(NotificationActivator);
 namespace InteractiveNotifications
 {
 
-	INTERACTIVENOTIFICATIONS_API double Add(double a, double b)
+	double Add(double a, double b)
 	{
 		// Sanity check
 		return a + b;
 	}
 
-	INTERACTIVENOTIFICATIONS_API HRESULT RegisterAppForNotificationSupport()
-	{
-		CoTaskMemString appData;
-		auto hr = ::SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, appData.GetAddressOf());
-
-		if (SUCCEEDED(hr))
-		{
-			wchar_t shortcutPath[MAX_PATH];
-			// Todo: Don't hardcode the path
-			hr = ::PathCchCombine(shortcutPath, ARRAYSIZE(shortcutPath), appData.Get(), Shortcut);
-
-			if (SUCCEEDED(hr))
-			{
-				DWORD attributes = ::GetFileAttributes(shortcutPath);
-				bool fileExists = attributes < 0xFFFFFFF;
-
-				if (!fileExists)
-				{
-					// Todo: This is probably the wrong path bc Squirrel
-					wchar_t exePath[MAX_PATH];
-					DWORD charWritten = ::GetModuleFileName(nullptr, exePath, ARRAYSIZE(exePath));
-					hr = charWritten > 0 ? S_OK : HRESULT_FROM_WIN32(::GetLastError());
-
-					if (SUCCEEDED(hr))
-					{
-						hr = InstallShortcut(shortcutPath, exePath);
-						if (SUCCEEDED(hr))
-						{
-							hr = RegisterComServer(exePath);
-						}
-					}
-				}
-			}
-		}
-		return hr;
-	}
-
 	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API HRESULT InstallShortcut(PCWSTR shortcutPath, PCWSTR exePath)
+	HRESULT InstallShortcut(PCWSTR shortcutPath, PCWSTR exePath)
 	{
 		// This looks like callback hell, this should be cleaner
 		ComPtr<IShellLink> shellLink;
@@ -168,7 +130,7 @@ namespace InteractiveNotifications
 	}
 
 	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API HRESULT RegisterComServer(PCWSTR exePath)
+	HRESULT RegisterComServer(PCWSTR exePath)
 	{
 		// We don't need to worry about overflow here as ::GetModuleFileName won't
 		// return anything bigger than the max file system path (much fewer than max of DWORD).
@@ -177,15 +139,52 @@ namespace InteractiveNotifications
 		// We should figure out what the hell we actually want to do here
 		return HRESULT_FROM_WIN32(::RegSetKeyValue(
 			HKEY_CURRENT_USER,
-			LR"(SOFTWARE\Classes\CLSID\{D4B2D0CA-5D93-41CF-9A4C-721782B3246E}\LocalServer32)",
+			LR"(SOFTWARE\Classes\CLSID\{23A5B06E-20BB-4E7E-A0AC-6982ED6A6041}\LocalServer32)",
 			nullptr,
 			REG_SZ,
 			reinterpret_cast<const BYTE*>(exePath),
 			dataSize));
 	}
 
+	HRESULT RegisterAppForNotificationSupport()
+	{
+		CoTaskMemString appData;
+		auto hr = ::SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, appData.GetAddressOf());
+
+		if (SUCCEEDED(hr))
+		{
+			wchar_t shortcutPath[MAX_PATH];
+			// Todo: Don't hardcode the path
+			hr = ::PathCchCombine(shortcutPath, ARRAYSIZE(shortcutPath), appData.Get(), LR"(Microsoft\Windows\Start Menu\Lol.lnk)");
+
+			if (SUCCEEDED(hr))
+			{
+				DWORD attributes = ::GetFileAttributes(shortcutPath);
+				bool fileExists = attributes < 0xFFFFFFF;
+
+				if (!fileExists)
+				{
+					// Todo: This is probably the wrong path bc Squirrel
+					wchar_t exePath[MAX_PATH];
+					DWORD charWritten = ::GetModuleFileName(nullptr, exePath, ARRAYSIZE(exePath));
+					hr = charWritten > 0 ? S_OK : HRESULT_FROM_WIN32(::GetLastError());
+
+					if (SUCCEEDED(hr))
+					{
+						hr = InteractiveNotifications::InstallShortcut(shortcutPath, exePath);
+						if (SUCCEEDED(hr))
+						{
+							hr = RegisterComServer(exePath);
+						}
+					}
+				}
+			}
+		}
+		return hr;
+	}
+
 	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API HRESULT RegisterActivator()
+	HRESULT RegisterActivator()
 	{
 		// Module<OutOfProc> needs a callback registered before it can be used.
 		// Since we don't care about when it shuts down, we'll pass an empty lambda here.
@@ -203,20 +202,13 @@ namespace InteractiveNotifications
 	}
 
 	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API void UnregisterActivator()
+	void UnregisterActivator()
 	{
 		Module<OutOfProc>::GetModule().UnregisterObjects();
 		Module<OutOfProc>::GetModule().DecrementObjectCount();
 	}
 
-	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API void silentActivation()
-	{
-		RegisterAppForNotificationSupport();
-		RegisterActivator();
-	}
-
-	INTERACTIVENOTIFICATIONS_API HRESULT CreateToastXml(IToastNotificationManagerStatics* toastManager, IXmlDocument** inputXml)
+	HRESULT CreateToastXml(IToastNotificationManagerStatics* toastManager, IXmlDocument** inputXml)
 	{
 		*inputXml = nullptr;
 		//ComPtr<IXmlDocumentIO> toastXmlDocument;
@@ -253,7 +245,7 @@ namespace InteractiveNotifications
 	}
 
 	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API HRESULT CreateToast(IToastNotificationManagerStatics* toastManager, IXmlDocument* xml)
+	HRESULT CreateToast(IToastNotificationManagerStatics* toastManager, IXmlDocument* xml)
 	{
 		ComPtr<IToastNotifier> notifier;
 		HRESULT hr = toastManager->CreateToastNotifierWithId(HStringReference(AppId).Get(), &notifier);
@@ -335,7 +327,7 @@ namespace InteractiveNotifications
 	}
 
 	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API HRESULT SendTestToast() {
+	HRESULT SendTestToast() {
 		ComPtr<IToastNotificationManagerStatics> toastStatics;
 
 		HRESULT hr = Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_UI_Notifications_ToastNotificationManager).Get(), &toastStatics);
@@ -356,11 +348,6 @@ namespace InteractiveNotifications
 
 extern "C"
 {
-	__declspec(dllexport) double Add(double a, double b)
-	{
-		return InteractiveNotifications::Add(a, b);
-	}
-
 	__declspec(dllexport) void RegisterForNotificationSupport()
 	{
 		InteractiveNotifications::RegisterAppForNotificationSupport();
