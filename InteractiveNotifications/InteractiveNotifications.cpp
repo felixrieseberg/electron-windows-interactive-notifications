@@ -47,7 +47,8 @@ struct CoTaskMemStringTraits
 typedef HandleT<CoTaskMemStringTraits> CoTaskMemString;
 
 // Todo: Make this magically dynamic
-const wchar_t AppId[] = L"Felix.Lol.WhatAmIDoing";
+const wchar_t AppId[] = L"Felix.Lol.Test";
+const wchar_t Shortcut[] = LR"(Microsoft\Windows\Start Menu\Lol.lnk)";
 
 // For the app to be activated from Action Center, it needs to provide a COM server to be called
 // when the notification is activated.  The CLSID of the object needs to be registered with the
@@ -63,11 +64,7 @@ public:
 		_In_reads_(dataCount) const NOTIFICATION_USER_INPUT_DATA* data,
 		ULONG dataCount) override
 	{
-		for (int i = 0; i < dataCount; i++)
-		{
-			LPCWSTR x = data[i].Value;
-			system("start http://localhost/");
-		}
+		system("start http://localhost/");
 		
 		return HRESULT();
 	}
@@ -92,7 +89,7 @@ namespace InteractiveNotifications
 		{
 			wchar_t shortcutPath[MAX_PATH];
 			// Todo: Don't hardcode the path
-			hr = ::PathCchCombine(shortcutPath, ARRAYSIZE(shortcutPath), appData.Get(), LR"(Microsoft\Windows\Start Menu\Lol.lnk)");
+			hr = ::PathCchCombine(shortcutPath, ARRAYSIZE(shortcutPath), appData.Get(), Shortcut);
 
 			if (SUCCEEDED(hr))
 			{
@@ -205,6 +202,13 @@ namespace InteractiveNotifications
 	{
 		Module<OutOfProc>::GetModule().UnregisterObjects();
 		Module<OutOfProc>::GetModule().DecrementObjectCount();
+	}
+
+	_Use_decl_annotations_
+	INTERACTIVENOTIFICATIONS_API void silentActivation()
+	{
+		RegisterAppForNotificationSupport();
+		RegisterActivator();
 	}
 
 	INTERACTIVENOTIFICATIONS_API HRESULT CreateToastXml(IToastNotificationManagerStatics* toastManager, IXmlDocument** inputXml)
@@ -342,5 +346,33 @@ namespace InteractiveNotifications
 		}
 
 		return hr;
+	}
+}
+
+extern "C"
+{
+	__declspec(dllexport) double Add(double a, double b)
+	{
+		return InteractiveNotifications::Add(a, b);
+	}
+
+	__declspec(dllexport) void RegisterForNotificationSupport()
+	{
+		InteractiveNotifications::RegisterAppForNotificationSupport();
+	}
+
+	__declspec(dllexport) void RegisterActivator()
+	{
+		InteractiveNotifications::RegisterActivator();
+	}
+
+	__declspec(dllexport) void UnregisterActivator()
+	{
+		InteractiveNotifications::UnregisterActivator();
+	}
+
+	__declspec(dllexport) void SendTestToast()
+	{
+		InteractiveNotifications::SendTestToast();
 	}
 }

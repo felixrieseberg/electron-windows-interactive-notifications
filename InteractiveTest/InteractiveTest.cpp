@@ -4,9 +4,9 @@
 //
 
 #include "stdafx.h"
-#include <iostream>
 #include "InteractiveNotifications.h"
 
+#include <iostream>
 #include <SDKDDKVer.h>
 #include <Windows.h>
 #include <Psapi.h>
@@ -20,7 +20,6 @@
 #include <wrl\wrappers\corewrappers.h>
 
 using namespace std;
-using namespace InteractiveNotifications;
 
 using namespace ABI::Windows::Foundation;
 using namespace Microsoft::WRL;
@@ -31,37 +30,37 @@ int main()
 	// Also: Fuck, how do we even do that in Node
 	// If we're not single threaded stuff will be less fun
 	//RoInitializeWrapper winRtInitializer(RO_INIT_MULTITHREADED);
-	CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+	//CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+	CoInitialize(nullptr);
 
 	// Sanity check
 	double a = 1;
 	double b = 99;
 
-	cout << "Sanity check " << Add(a, b);
+	cout << "Sanity check " << InteractiveNotifications::Add(a, b);
 
-	// Real check
-	HRESULT hr = RegisterAppForNotificationSupport();
+	HRESULT hr = InteractiveNotifications::RegisterAppForNotificationSupport();
 	
 	if (SUCCEEDED(hr))
 	{
 		cout << "\nRegisterAppForNotificationSupport worked..." << endl;
 	}
 
-	hr = RegisterActivator();
+	hr = InteractiveNotifications::RegisterActivator();
 
 	if (SUCCEEDED(hr))
 	{
 		cout << "RegisterActivator worked..." << endl;
 	}
 
-	hr = SendTestToast();
+	hr = InteractiveNotifications::SendTestToast();
 
 	if (SUCCEEDED(hr))
 	{
 		cout << "Sending test notification worked..." << endl;
 	}
 
-	system("pause");
+	//system("pause");
 
 	return 0;
 }

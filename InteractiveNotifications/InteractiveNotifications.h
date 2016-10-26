@@ -19,6 +19,7 @@ namespace InteractiveNotifications {
 
 	INTERACTIVENOTIFICATIONS_API HRESULT RegisterActivator();
 	INTERACTIVENOTIFICATIONS_API void UnregisterActivator();
+	INTERACTIVENOTIFICATIONS_API void silentActivation();
 		
 	// Sample stuff - I'm not sure that the toast stuff needs to be here
 	INTERACTIVENOTIFICATIONS_API HRESULT SendTestToast();

@@ -88,7 +88,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\felixr\Code\InteractiveNotifications\InteractiveNotifications;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\felixr\Code\InteractiveNotifications\InteractiveNotifications;C:\Users\felixr\Code\InteractiveNotifications\RegisterLibrary;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAsWinRT>
       </CompileAsWinRT>
     </ClCompile>
