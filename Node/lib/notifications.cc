@@ -1,7 +1,8 @@
 #include <node.h>
 #include <v8.h>
 
-#include "../../InteractiveNotifications/InteractiveNotifications.h"
+#include "../../InteractiveNotifications/stdafx.h"
+#include "../../InteractiveNotifications/InteractiveNotifications.cpp"
 #include <malloc.h>
 #include <windows.h>
 #include <stdio.h>
@@ -14,6 +15,9 @@ void Method(const v8::FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
 
+
+
+  InteractiveNotifications::Add();
 
   args.GetReturnValue().Set(Boolean::New(isolate, true));
 }

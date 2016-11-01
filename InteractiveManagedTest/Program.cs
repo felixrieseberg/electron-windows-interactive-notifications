@@ -20,31 +20,31 @@ namespace InteractiveManagedTest
 
 
             var appId = "Felix.Lol.Test";
-            //var toastTemplate = @"
-            //<toast launch=""developer-defined-string"">
-            //    <visual>
-            //    <binding template=""ToastGeneric"">
-            //        <text>Andrew B.</text>
-            //        <text>Shall we meet up at 8?</text>
-            //        <image placement=""appLogoOverride"" src=""https://unsplash.it/64?image=883"" hint-crop=""circle"" />
-            //    </binding>
-            //    </visual>
-            //    <actions>
-            //    <input id=""message"" type=""text"" placeHolderContent=""Type a reply"" />
-            //    <action activationType=""background"" content=""Reply"" arguments=""reply"" />
-            //    <action activationType=""foreground"" content=""Video call"" arguments=""video"" />
-            //    </actions>
-            //</toast>";
+            var toastTemplate = @"
+            <toast launch=""developer-defined-string"">
+                <visual>
+                <binding template=""ToastGeneric"">
+                    <text>Andrew B.</text>
+                    <text>Shall we meet up at 8?</text>
+                    <image placement=""appLogoOverride"" src=""https://unsplash.it/64?image=883"" hint-crop=""circle"" />
+                </binding>
+                </visual>
+                <actions>
+                <input id=""message"" type=""text"" placeHolderContent=""Type a reply"" />
+                <action activationType=""background"" content=""Reply"" arguments=""reply"" />
+                <action activationType=""foreground"" content=""Video call"" arguments=""video"" />
+                </actions>
+            </toast>";
 
             RegisterForNotificationSupport();
             RegisterActivator();
-            SendTestToast();
+            //SendTestToast();
 
-            //XmlDocument toastXml = new XmlDocument();
-            //toastXml.LoadXml(toastTemplate);
+            XmlDocument toastXml = new XmlDocument();
+            toastXml.LoadXml(toastTemplate);
 
-            //ToastNotification toast = new ToastNotification(toastXml);
-            //ToastNotificationManager.CreateToastNotifier(appId).Show(toast);
+            ToastNotification toast = new ToastNotification(toastXml);
+            ToastNotificationManager.CreateToastNotifier(appId).Show(toast);
 
 
             Console.WriteLine("Waiting...");

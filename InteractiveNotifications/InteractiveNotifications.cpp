@@ -29,7 +29,7 @@
 //  Name:     System.AppUserModel.ToastActivatorCLSID -- PKEY_AppUserModel_ToastActivatorCLSID
 //  Type:     Guid -- VT_CLSID
 //  FormatID: {9F4C2855-9F79-4B39-A8D0-E1D42DE1D5F3}, 26
-//  
+//
 //  Used to CoCreate an INotificationActivationCallback interface to notify about toast activations.
 EXTERN_C const PROPERTYKEY DECLSPEC_SELECTANY PKEY_AppUserModel_ToastActivatorCLSID = { { 0x9F4C2855, 0x9F79, 0x4B39,{ 0xA8, 0xD0, 0xE1, 0xD4, 0x2D, 0xE1, 0xD5, 0xF3 } }, 26 };
 
@@ -53,6 +53,8 @@ typedef HandleT<CoTaskMemStringTraits> CoTaskMemString;
 const wchar_t AppId[] = L"Felix.Lol.Test";
 const wchar_t Shortcut[] = LR"(Microsoft\Windows\Start Menu\Lol.lnk)";
 
+#define BUFFER_SIZE 100
+
 // For the app to be activated from Action Center, it needs to provide a COM server to be called
 // when the notification is activated.  The CLSID of the object needs to be registered with the
 // OS via its shortcut so that it knows who to call later.
@@ -67,10 +69,26 @@ public:
 		_In_reads_(dataCount) const NOTIFICATION_USER_INPUT_DATA* data,
 		ULONG dataCount) override
 	{
-		//std::string countStr = "start http://localhost/" + std::to_string(dataCount);
-		//system(countStr.c_str());
-		system("start notepad.exe");
+		std::string args;
 		
+		for (int i = 0; i < dataCount; i++) {
+			LPCWSTR lvalue = data[i].Value;
+			LPCWSTR lkey = data[i].Key;
+
+			std::wstring wvalue(lvalue);
+			std::wstring wkey(lkey);
+
+			std::string value(wvalue.begin(), wvalue.end());
+			std::string key(wkey.begin(), wkey.end());
+
+			args = args + "key:" + key;
+			args = args + ";value:" + value;
+		}
+
+		std::string cmdLine = "start slack://reply?args={" + args + "}";
+		
+		system(cmdLine.c_str());
+
 		return HRESULT();
 	}
 };
@@ -126,6 +144,7 @@ namespace InteractiveNotifications
 	INTERACTIVENOTIFICATIONS_API HRESULT InstallShortcut(PCWSTR shortcutPath, PCWSTR exePath)
 	{
 		// This looks like callback hell, this should be cleaner
+		// David very much agrees, return if HRESULT isn't okay
 		ComPtr<IShellLink> shellLink;
 		HRESULT hr = CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&shellLink));
 		if (SUCCEEDED(hr))
@@ -180,7 +199,7 @@ namespace InteractiveNotifications
 			LR"(SOFTWARE\Classes\CLSID\{D4B2D0CA-5D93-41CF-9A4C-721782B3246E}\LocalServer32)",
 			nullptr,
 			REG_SZ,
-			reinterpret_cast<const BYTE*>(exePath),
+			reinterpret_cast<const BYTE*>(exePath), // David: This is a bit evil, because we're just promising the compiler that it is a ba
 			dataSize));
 	}
 
@@ -190,6 +209,7 @@ namespace InteractiveNotifications
 		// Module<OutOfProc> needs a callback registered before it can be used.
 		// Since we don't care about when it shuts down, we'll pass an empty lambda here.
 		// That being said, I'm not sure if that's even true?
+		// If we need to clean up, do it here (we probably don't have to)
 		Module<OutOfProc>::Create([] {});
 
 		// If a local server process only hosts the COM object then COM expects
@@ -224,7 +244,7 @@ namespace InteractiveNotifications
 		//HRESULT hr = Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_Data_Xml_Dom_XmlDocument).Get(), &toastXmlDocument);
 
 		//if (SUCCEEDED(hr))
-		//{	
+		//{
 		//	HStringReference toastTemplate(
 		//		L"<toast>"
 		//		L" <visual>"
