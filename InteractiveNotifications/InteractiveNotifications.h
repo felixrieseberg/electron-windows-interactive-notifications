@@ -20,18 +20,4 @@ namespace InteractiveNotifications {
 	INTERACTIVENOTIFICATIONS_API HRESULT RegisterActivator();
 	INTERACTIVENOTIFICATIONS_API void UnregisterActivator();
 	INTERACTIVENOTIFICATIONS_API void silentActivation();
-
-	// Sample stuff - I'm not sure that the toast stuff needs to be here
-	INTERACTIVENOTIFICATIONS_API HRESULT SendTestToast();
-
-	// Sanity check
-	INTERACTIVENOTIFICATIONS_API double Add(double a, double b);
-	INTERACTIVENOTIFICATIONS_API HRESULT CreateToastXml(
-		_In_ ABI::Windows::UI::Notifications::IToastNotificationManagerStatics* toastManager,
-		_COM_Outptr_ ABI::Windows::Data::Xml::Dom::IXmlDocument** xml);
-
-	INTERACTIVENOTIFICATIONS_API HRESULT CreateToast(
-		_In_ ABI::Windows::UI::Notifications::IToastNotificationManagerStatics* toastManager,
-		_In_ ABI::Windows::Data::Xml::Dom::IXmlDocument* xml
-	);
 }

@@ -5,7 +5,7 @@
 #include "InteractiveNotifications.h"
 #include "NotificationActivationCallback.h"
 
-#include <fstream>
+#include <Shellapi.h>
 #include <string>
 #include <iostream>
 #include <SDKDDKVer.h>
@@ -17,6 +17,7 @@
 #include <Pathcch.h>
 #include <propvarutil.h>
 #include <propkey.h>
+#include <wchar.h>
 #include <wrl.h>
 #include <wrl\wrappers\corewrappers.h>
 #include <windows.ui.notifications.h>
@@ -49,16 +50,15 @@ struct CoTaskMemStringTraits
 };
 typedef HandleT<CoTaskMemStringTraits> CoTaskMemString;
 
-// Todo: Make this magically dynamic
 const wchar_t AppId[] = L"Felix.Lol.Test";
 const wchar_t Shortcut[] = LR"(Microsoft\Windows\Start Menu\Lol.lnk)";
 
-#define BUFFER_SIZE 100
+#define __CSID "F4B2D0CA-5D93-41CF-9A4C-721782B3246E"
 
 // For the app to be activated from Action Center, it needs to provide a COM server to be called
 // when the notification is activated.  The CLSID of the object needs to be registered with the
 // OS via its shortcut so that it knows who to call later.
-class DECLSPEC_UUID("D4B2D0CA-5D93-41CF-9A4C-721782B3246E") NotificationActivator WrlSealed
+class DECLSPEC_UUID(__CSID) NotificationActivator WrlSealed
 : public RuntimeClass < RuntimeClassFlags<ClassicCom>,
 	INotificationActivationCallback > WrlFinal
 {
@@ -70,7 +70,7 @@ public:
 		ULONG dataCount) override
 	{
 		std::string args;
-		
+
 		for (int i = 0; i < dataCount; i++) {
 			LPCWSTR lvalue = data[i].Value;
 			LPCWSTR lkey = data[i].Key;
@@ -81,12 +81,19 @@ public:
 			std::string value(wvalue.begin(), wvalue.end());
 			std::string key(wkey.begin(), wkey.end());
 
-			args = args + "key:" + key;
-			args = args + ";value:" + value;
+			args = args + "key:\"" + key + "\"";
+			args = args + ";value:\"" + value + "\"";
 		}
 
-		std::string cmdLine = "start slack://reply?args={" + args + "}";
-		
+		std::string escapedArgs = "";
+		for (char ch : args) {
+			switch (ch) {
+			case ' ': escapedArgs += "%20;"; break;
+			default: escapedArgs += ch; break;
+			}
+		}
+
+		std::string cmdLine = "start slack://reply?args={" + escapedArgs + "}";
 		system(cmdLine.c_str());
 
 		return HRESULT();
@@ -96,14 +103,7 @@ CoCreatableClass(NotificationActivator);
 
 namespace InteractiveNotifications
 {
-
-	INTERACTIVENOTIFICATIONS_API double Add(double a, double b)
-	{
-		// Sanity check
-		return a + b;
-	}
-
-	INTERACTIVENOTIFICATIONS_API HRESULT RegisterAppForNotificationSupport()
+	HRESULT RegisterAppForNotificationSupport()
 	{
 		CoTaskMemString appData;
 		auto hr = ::SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, appData.GetAddressOf());
@@ -141,74 +141,64 @@ namespace InteractiveNotifications
 	}
 
 	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API HRESULT InstallShortcut(PCWSTR shortcutPath, PCWSTR exePath)
+		INTERACTIVENOTIFICATIONS_API HRESULT InstallShortcut(PCWSTR shortcutPath, PCWSTR exePath)
 	{
-		// This looks like callback hell, this should be cleaner
-		// David very much agrees, return if HRESULT isn't okay
 		ComPtr<IShellLink> shellLink;
 		HRESULT hr = CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&shellLink));
-		if (SUCCEEDED(hr))
-		{
-			hr = shellLink->SetPath(exePath);
-			if (SUCCEEDED(hr))
-			{
-				ComPtr<IPropertyStore> propertyStore;
 
-				hr = shellLink.As(&propertyStore);
-				if (SUCCEEDED(hr))
-				{
-					PROPVARIANT propVar;
-					propVar.vt = VT_LPWSTR;
-					propVar.pwszVal = const_cast<PWSTR>(AppId); // for _In_ scenarios, we don't need a copy
-					hr = propertyStore->SetValue(PKEY_AppUserModel_ID, propVar);
-					if (SUCCEEDED(hr))
-					{
-						propVar.vt = VT_CLSID;
-						propVar.puuid = const_cast<CLSID*>(&__uuidof(NotificationActivator));
-						hr = propertyStore->SetValue(PKEY_AppUserModel_ToastActivatorCLSID, propVar);
-						if (SUCCEEDED(hr))
-						{
-							hr = propertyStore->Commit();
-							if (SUCCEEDED(hr))
-							{
-								ComPtr<IPersistFile> persistFile;
-								hr = shellLink.As(&persistFile);
-								if (SUCCEEDED(hr))
-								{
-									hr = persistFile->Save(shortcutPath, TRUE);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+		if (!SUCCEEDED(hr)) return hr;
+		hr = shellLink->SetPath(exePath);
+
+		if (!SUCCEEDED(hr)) return hr;
+		ComPtr<IPropertyStore> propertyStore;
+		hr = shellLink.As(&propertyStore);
+
+		if (!SUCCEEDED(hr)) return hr;
+		PROPVARIANT propVar;
+		propVar.vt = VT_LPWSTR;
+		propVar.pwszVal = const_cast<PWSTR>(AppId); // for _In_ scenarios, we don't need a copy
+		hr = propertyStore->SetValue(PKEY_AppUserModel_ID, propVar);
+
+		if (!SUCCEEDED(hr)) return hr;
+		propVar.vt = VT_CLSID;
+		propVar.puuid = const_cast<CLSID*>(&__uuidof(NotificationActivator));
+		hr = propertyStore->SetValue(PKEY_AppUserModel_ToastActivatorCLSID, propVar);
+
+		if (!SUCCEEDED(hr)) return hr;
+		hr = propertyStore->Commit();
+
+		if (!SUCCEEDED(hr)) return hr;
+		ComPtr<IPersistFile> persistFile;
+		hr = shellLink.As(&persistFile);
+
+		if (!SUCCEEDED(hr)) return hr;
+		hr = persistFile->Save(shortcutPath, TRUE);
+
 		return hr;
 	}
 
 	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API HRESULT RegisterComServer(PCWSTR exePath)
+		INTERACTIVENOTIFICATIONS_API HRESULT RegisterComServer(PCWSTR exePath)
 	{
 		// We don't need to worry about overflow here as ::GetModuleFileName won't
 		// return anything bigger than the max file system path (much fewer than max of DWORD).
 		DWORD dataSize = static_cast<DWORD>((::wcslen(exePath) + 1) * sizeof(WCHAR));
+		auto key = LR"(SOFTWARE\Classes\CLSID\{F4B2D0CA-5D93-41CF-9A4C-721782B3246E}\LocalServer32)";
 
-		// We should figure out what the hell we actually want to do here
 		return HRESULT_FROM_WIN32(::RegSetKeyValue(
 			HKEY_CURRENT_USER,
-			LR"(SOFTWARE\Classes\CLSID\{D4B2D0CA-5D93-41CF-9A4C-721782B3246E}\LocalServer32)",
+			key,
 			nullptr,
 			REG_SZ,
-			reinterpret_cast<const BYTE*>(exePath), // David: This is a bit evil, because we're just promising the compiler that it is a ba
+			reinterpret_cast<const BYTE*>(exePath),
 			dataSize));
 	}
 
 	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API HRESULT RegisterActivator()
+		INTERACTIVENOTIFICATIONS_API HRESULT RegisterActivator()
 	{
 		// Module<OutOfProc> needs a callback registered before it can be used.
 		// Since we don't care about when it shuts down, we'll pass an empty lambda here.
-		// That being said, I'm not sure if that's even true?
 		// If we need to clean up, do it here (we probably don't have to)
 		Module<OutOfProc>::Create([] {});
 
@@ -223,181 +213,27 @@ namespace InteractiveNotifications
 	}
 
 	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API void UnregisterActivator()
+		INTERACTIVENOTIFICATIONS_API void UnregisterActivator()
 	{
 		Module<OutOfProc>::GetModule().UnregisterObjects();
 		Module<OutOfProc>::GetModule().DecrementObjectCount();
-	}
-
-	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API void silentActivation()
-	{
-		RegisterAppForNotificationSupport();
-		RegisterActivator();
-	}
-
-	INTERACTIVENOTIFICATIONS_API HRESULT CreateToastXml(IToastNotificationManagerStatics* toastManager, IXmlDocument** inputXml)
-	{
-		*inputXml = nullptr;
-		//ComPtr<IXmlDocumentIO> toastXmlDocument;
-
-		//HRESULT hr = Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_Data_Xml_Dom_XmlDocument).Get(), &toastXmlDocument);
-
-		//if (SUCCEEDED(hr))
-		//{
-		//	HStringReference toastTemplate(
-		//		L"<toast>"
-		//		L" <visual>"
-		//		L" <binding template='ToastGeneric'>"
-		//		L" <text>Press Reply</text>"
-		//		L" </binding>"
-		//		L" </visual>"
-		//		L" <actions>"
-		//		L" <action content='reply'"
-		//		L" arguments='replyToComment'"
-		//		L" activationKind='Background'/>"
-		//		L" </actions>"
-		//		L"</toast>");
-
-		//	hr = toastXmlDocument->LoadXml(toastTemplate.Get());
-
-		//	if (SUCCEEDED(hr))
-		//	{
-		//		hr = toastXmlDocument.CopyTo(inputXml);
-		//	}
-		//}
-
-		HRESULT hr = toastManager->GetTemplateContent(ToastTemplateType_ToastImageAndText04, inputXml);
-
-		return hr;
-	}
-
-	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API HRESULT CreateToast(IToastNotificationManagerStatics* toastManager, IXmlDocument* xml)
-	{
-		ComPtr<IToastNotifier> notifier;
-		HRESULT hr = toastManager->CreateToastNotifierWithId(HStringReference(AppId).Get(), &notifier);
-		if (SUCCEEDED(hr))
-		{
-			ComPtr<IToastNotificationFactory> factory;
-			hr = Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_UI_Notifications_ToastNotification).Get(), &factory);
-			if (SUCCEEDED(hr))
-			{
-				ComPtr<IToastNotification> toast;
-				hr = factory->CreateToastNotification(xml, &toast);
-
-				if (SUCCEEDED(hr))
-				{
-					// Register the event handlers
-					EventRegistrationToken activatedToken, dismissedToken, failedToken;
-
-					using namespace ABI::Windows::Foundation;
-
-					hr = toast->add_Activated(
-						Callback < Implements < RuntimeClassFlags<ClassicCom>,
-						ITypedEventHandler<ToastNotification*, IInspectable* >> >(
-							[](IToastNotification*, IInspectable*)
-					{
-						// When the user clicks or taps on the toast, the registered
-						// COM object is activated, and the Activated event is raised.
-						// There is no guarantee which will happen first.
-						return S_OK;
-					}).Get(), &activatedToken);
-
-					if (SUCCEEDED(hr))
-					{
-						hr = toast->add_Dismissed(Callback < Implements < RuntimeClassFlags<ClassicCom>,
-							ITypedEventHandler<ToastNotification*, ToastDismissedEventArgs* >> >(
-								[](IToastNotification*, IToastDismissedEventArgs* e)
-						{
-							ToastDismissalReason reason;
-
-							// This could be useful, but who knows, amirite?
-							if (SUCCEEDED(e->get_Reason(&reason)))
-							{
-								switch (reason)
-								{
-								case ToastDismissalReason_ApplicationHidden:
-									break;
-								case ToastDismissalReason_UserCanceled:
-									break;
-								case ToastDismissalReason_TimedOut:
-									break;
-								default:
-									break;
-								}
-							}
-							return S_OK;
-						}).Get(), &dismissedToken);
-
-						if (SUCCEEDED(hr))
-						{
-							hr = toast->add_Failed(Callback < Implements < RuntimeClassFlags<ClassicCom>,
-								ITypedEventHandler<ToastNotification*, ToastFailedEventArgs* >> >(
-									[](IToastNotification*, IToastFailedEventArgs* /*e */)
-							{
-								// Oh noes errors
-								return S_OK;
-							}).Get(), &failedToken);
-
-							if (SUCCEEDED(hr))
-							{
-								hr = notifier->Show(toast.Get());
-							}
-						}
-					}
-
-				}
-			}
-		}
-
-		return hr;
-	}
-
-	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API HRESULT SendTestToast() {
-		ComPtr<IToastNotificationManagerStatics> toastStatics;
-
-		HRESULT hr = Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_UI_Notifications_ToastNotificationManager).Get(), &toastStatics);
-
-		if (SUCCEEDED(hr))
-		{
-			ComPtr<IXmlDocument> toastXml;
-			hr = CreateToastXml(toastStatics.Get(), &toastXml);
-			if (SUCCEEDED(hr))
-			{
-				hr = CreateToast(toastStatics.Get(), toastXml.Get());
-			}
-		}
-
-		return hr;
 	}
 }
 
 extern "C"
 {
-	__declspec(dllexport) double Add(double a, double b)
-	{
-		return InteractiveNotifications::Add(a, b);
-	}
-
-	__declspec(dllexport) void RegisterForNotificationSupport()
+	__declspec(dllexport) void CRegisterForNotificationSupport()
 	{
 		InteractiveNotifications::RegisterAppForNotificationSupport();
 	}
 
-	__declspec(dllexport) void RegisterActivator()
+	__declspec(dllexport) void CRegisterActivator()
 	{
 		InteractiveNotifications::RegisterActivator();
 	}
 
-	__declspec(dllexport) void UnregisterActivator()
+	__declspec(dllexport) void CUnregisterActivator()
 	{
 		InteractiveNotifications::UnregisterActivator();
-	}
-
-	__declspec(dllexport) void SendTestToast()
-	{
-		InteractiveNotifications::SendTestToast();
 	}
 }

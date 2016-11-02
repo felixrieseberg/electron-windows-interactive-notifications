@@ -16,9 +16,6 @@ namespace InteractiveManagedTest
             handler = new ConsoleEventDelegate(ConsoleEventCallback);
             SetConsoleCtrlHandler(handler, true);
 
-            Console.WriteLine($"Sanity check: 2 + 4 = {Add(2, 4)}");
-
-
             var appId = "Felix.Lol.Test";
             var toastTemplate = @"
             <toast launch=""developer-defined-string"">
@@ -36,9 +33,8 @@ namespace InteractiveManagedTest
                 </actions>
             </toast>";
 
-            RegisterForNotificationSupport();
-            RegisterActivator();
-            //SendTestToast();
+            CRegisterForNotificationSupport();
+            CRegisterActivator();
 
             XmlDocument toastXml = new XmlDocument();
             toastXml.LoadXml(toastTemplate);
@@ -55,7 +51,7 @@ namespace InteractiveManagedTest
         {
             if (eventType == 2)
             {
-                UnregisterActivator();
+                CUnregisterActivator();
             }
             return false;
         }
@@ -66,19 +62,12 @@ namespace InteractiveManagedTest
         private static extern bool SetConsoleCtrlHandler(ConsoleEventDelegate callback, bool add);
 
         [DllImport(@"C:\Users\felixr\Code\InteractiveNotifications\Debug\InteractiveNotifications.dll", CallingConvention = CallingConvention.Cdecl)]
-        static extern double Add(double a, double b);
-
-
-        [DllImport(@"C:\Users\felixr\Code\InteractiveNotifications\Debug\InteractiveNotifications.dll", CallingConvention = CallingConvention.Cdecl)]
-        static extern void SendTestToast();
+        static extern void CRegisterForNotificationSupport();
 
         [DllImport(@"C:\Users\felixr\Code\InteractiveNotifications\Debug\InteractiveNotifications.dll", CallingConvention = CallingConvention.Cdecl)]
-        static extern void RegisterForNotificationSupport();
+        static extern void CRegisterActivator();
 
         [DllImport(@"C:\Users\felixr\Code\InteractiveNotifications\Debug\InteractiveNotifications.dll", CallingConvention = CallingConvention.Cdecl)]
-        static extern void RegisterActivator();
-
-        [DllImport(@"C:\Users\felixr\Code\InteractiveNotifications\Debug\InteractiveNotifications.dll", CallingConvention = CallingConvention.Cdecl)]
-        static extern void UnregisterActivator();
+        static extern void CUnregisterActivator();
     }
 }
