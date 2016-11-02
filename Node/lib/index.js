@@ -1,7 +1,7 @@
-const ffi = require('ffi');
+const ffi = require('ffi')
 const lib = ffi.Library('../../InteractiveNotifications/Debug/InteractiveNotifications', {
-    'CRegisterForNotificationSupport': ['void', []]
-});
+    'CRegisterForNotificationSupport': ['string', []]
+})
 
-
-console.log(lib);
+console.log(lib)
+console.log(lib.CRegisterForNotificationSupport())

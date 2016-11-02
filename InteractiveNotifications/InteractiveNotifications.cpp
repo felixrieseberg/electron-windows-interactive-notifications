@@ -103,7 +103,8 @@ CoCreatableClass(NotificationActivator);
 
 namespace InteractiveNotifications
 {
-	HRESULT RegisterAppForNotificationSupport()
+	_Use_decl_annotations_
+	INTERACTIVENOTIFICATIONS_API HRESULT RegisterAppForNotificationSupport()
 	{
 		CoTaskMemString appData;
 		auto hr = ::SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, appData.GetAddressOf());
@@ -141,7 +142,7 @@ namespace InteractiveNotifications
 	}
 
 	_Use_decl_annotations_
-		INTERACTIVENOTIFICATIONS_API HRESULT InstallShortcut(PCWSTR shortcutPath, PCWSTR exePath)
+	INTERACTIVENOTIFICATIONS_API HRESULT InstallShortcut(PCWSTR shortcutPath, PCWSTR exePath)
 	{
 		ComPtr<IShellLink> shellLink;
 		HRESULT hr = CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&shellLink));
@@ -178,7 +179,7 @@ namespace InteractiveNotifications
 	}
 
 	_Use_decl_annotations_
-		INTERACTIVENOTIFICATIONS_API HRESULT RegisterComServer(PCWSTR exePath)
+	INTERACTIVENOTIFICATIONS_API HRESULT RegisterComServer(PCWSTR exePath)
 	{
 		// We don't need to worry about overflow here as ::GetModuleFileName won't
 		// return anything bigger than the max file system path (much fewer than max of DWORD).
@@ -195,7 +196,7 @@ namespace InteractiveNotifications
 	}
 
 	_Use_decl_annotations_
-		INTERACTIVENOTIFICATIONS_API HRESULT RegisterActivator()
+	INTERACTIVENOTIFICATIONS_API HRESULT RegisterActivator()
 	{
 		// Module<OutOfProc> needs a callback registered before it can be used.
 		// Since we don't care about when it shuts down, we'll pass an empty lambda here.
@@ -213,7 +214,7 @@ namespace InteractiveNotifications
 	}
 
 	_Use_decl_annotations_
-		INTERACTIVENOTIFICATIONS_API void UnregisterActivator()
+	INTERACTIVENOTIFICATIONS_API void UnregisterActivator()
 	{
 		Module<OutOfProc>::GetModule().UnregisterObjects();
 		Module<OutOfProc>::GetModule().DecrementObjectCount();
@@ -224,7 +225,7 @@ extern "C"
 {
 	__declspec(dllexport) void CRegisterForNotificationSupport()
 	{
-		InteractiveNotifications::RegisterAppForNotificationSupport();
+		return InteractiveNotifications::RegisterAppForNotificationSupport();
 	}
 
 	__declspec(dllexport) void CRegisterActivator()
