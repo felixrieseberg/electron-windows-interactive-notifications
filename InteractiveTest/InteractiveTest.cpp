@@ -33,12 +33,6 @@ int main()
 	//CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 	CoInitialize(nullptr);
 
-	// Sanity check
-	double a = 1;
-	double b = 99;
-
-	cout << "Sanity check " << InteractiveNotifications::Add(a, b);
-
 	const wchar_t appId[] = L"Felix.Lol.Test";
 	const wchar_t shortcut[] = LR"(Microsoft\Windows\Start Menu\Lol.lnk)";
 
@@ -55,8 +49,6 @@ int main()
 	{
 		cout << "RegisterActivator worked..." << endl;
 	}
-
-	hr = InteractiveNotifications::SendTestToast();
 
 	if (SUCCEEDED(hr))
 	{

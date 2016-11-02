@@ -1,3 +1,7 @@
-const addon = require('bindings')('notifications')
+const ffi = require('ffi')
+const lib = ffi.Library('../../InteractiveNotifications/Debug/InteractiveNotifications', {
+    'CRegisterForNotificationSupport': ['string', []]
+})
 
-console.log(addon.start());
+console.log(lib)
+console.log(lib.CRegisterForNotificationSupport())

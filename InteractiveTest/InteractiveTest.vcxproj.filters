@@ -21,7 +21,7 @@
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
+    <ClInclude Include="..\InteractiveNotifications\targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

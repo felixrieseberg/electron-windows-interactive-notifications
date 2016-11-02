@@ -53,24 +53,13 @@ NAN_METHOD(UnregisterActivator)
 	InteractiveNotifications::UnregisterActivator();
 }
 
-// TODO: Remove?
-NAN_METHOD(SendTestToast)
-{
-	Nan::HandleScope scope;
-
-	InteractiveNotifications::SendTestToast();
-}
-
 NAN_MODULE_INIT(init) {
-  
   // TODO: Make sure that this is necesarry..
   HRESULT hr = CoInitializeEx(NULL, COINITBASE_MULTITHREADED);
 
   Nan::SetMethod(target, "registerAppForNotificationSupport", RegisterAppForNotificationSupport);
   Nan::SetMethod(target, "registerActivator", RegisterActivator);
   Nan::SetMethod(target, "unregisterActivator", UnregisterActivator);
-  // TODO: Remove?
-  Nan::SetMethod(target, "sendTestToast", SendTestToast);
 }
 
 NODE_MODULE(notifications_bindings, init)

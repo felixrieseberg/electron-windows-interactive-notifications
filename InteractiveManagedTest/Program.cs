@@ -16,35 +16,31 @@ namespace InteractiveManagedTest
             handler = new ConsoleEventDelegate(ConsoleEventCallback);
             SetConsoleCtrlHandler(handler, true);
 
-            Console.WriteLine($"Sanity check: 2 + 4 = {Add(2, 4)}");
-
-
             var appId = "Felix.Lol.Test";
-            //var toastTemplate = @"
-            //<toast launch=""developer-defined-string"">
-            //    <visual>
-            //    <binding template=""ToastGeneric"">
-            //        <text>Andrew B.</text>
-            //        <text>Shall we meet up at 8?</text>
-            //        <image placement=""appLogoOverride"" src=""https://unsplash.it/64?image=883"" hint-crop=""circle"" />
-            //    </binding>
-            //    </visual>
-            //    <actions>
-            //    <input id=""message"" type=""text"" placeHolderContent=""Type a reply"" />
-            //    <action activationType=""background"" content=""Reply"" arguments=""reply"" />
-            //    <action activationType=""foreground"" content=""Video call"" arguments=""video"" />
-            //    </actions>
-            //</toast>";
+            var toastTemplate = @"
+            <toast launch=""developer-defined-string"">
+                <visual>
+                <binding template=""ToastGeneric"">
+                    <text>Andrew B.</text>
+                    <text>Shall we meet up at 8?</text>
+                    <image placement=""appLogoOverride"" src=""https://unsplash.it/64?image=883"" hint-crop=""circle"" />
+                </binding>
+                </visual>
+                <actions>
+                <input id=""message"" type=""text"" placeHolderContent=""Type a reply"" />
+                <action activationType=""background"" content=""Reply"" arguments=""reply"" />
+                <action activationType=""foreground"" content=""Video call"" arguments=""video"" />
+                </actions>
+            </toast>";
 
-            RegisterForNotificationSupport();
-            RegisterActivator();
-            SendTestToast();
+            CRegisterForNotificationSupport();
+            CRegisterActivator();
 
-            //XmlDocument toastXml = new XmlDocument();
-            //toastXml.LoadXml(toastTemplate);
+            XmlDocument toastXml = new XmlDocument();
+            toastXml.LoadXml(toastTemplate);
 
-            //ToastNotification toast = new ToastNotification(toastXml);
-            //ToastNotificationManager.CreateToastNotifier(appId).Show(toast);
+            ToastNotification toast = new ToastNotification(toastXml);
+            ToastNotificationManager.CreateToastNotifier(appId).Show(toast);
 
 
             Console.WriteLine("Waiting...");
@@ -55,7 +51,7 @@ namespace InteractiveManagedTest
         {
             if (eventType == 2)
             {
-                UnregisterActivator();
+                CUnregisterActivator();
             }
             return false;
         }
@@ -66,19 +62,12 @@ namespace InteractiveManagedTest
         private static extern bool SetConsoleCtrlHandler(ConsoleEventDelegate callback, bool add);
 
         [DllImport(@"C:\Users\felixr\Code\InteractiveNotifications\Debug\InteractiveNotifications.dll", CallingConvention = CallingConvention.Cdecl)]
-        static extern double Add(double a, double b);
-
-
-        [DllImport(@"C:\Users\felixr\Code\InteractiveNotifications\Debug\InteractiveNotifications.dll", CallingConvention = CallingConvention.Cdecl)]
-        static extern void SendTestToast();
+        static extern void CRegisterForNotificationSupport();
 
         [DllImport(@"C:\Users\felixr\Code\InteractiveNotifications\Debug\InteractiveNotifications.dll", CallingConvention = CallingConvention.Cdecl)]
-        static extern void RegisterForNotificationSupport();
+        static extern void CRegisterActivator();
 
         [DllImport(@"C:\Users\felixr\Code\InteractiveNotifications\Debug\InteractiveNotifications.dll", CallingConvention = CallingConvention.Cdecl)]
-        static extern void RegisterActivator();
-
-        [DllImport(@"C:\Users\felixr\Code\InteractiveNotifications\Debug\InteractiveNotifications.dll", CallingConvention = CallingConvention.Cdecl)]
-        static extern void UnregisterActivator();
+        static extern void CUnregisterActivator();
     }
 }
