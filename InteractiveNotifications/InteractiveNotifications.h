@@ -13,25 +13,27 @@
 #include <windows.ui.notifications.h>
 
 namespace InteractiveNotifications {
-	INTERACTIVENOTIFICATIONS_API HRESULT RegisterAppForNotificationSupport();
-	INTERACTIVENOTIFICATIONS_API HRESULT InstallShortcut(_In_ PCWSTR shortcutPath, _In_ PCWSTR exePath);
+	INTERACTIVENOTIFICATIONS_API HRESULT RegisterAppForNotificationSupport(_In_ PCWSTR shortcut, _In_ PCWSTR appId);
+	INTERACTIVENOTIFICATIONS_API HRESULT InstallShortcut(_In_ PCWSTR shortcutPath, _In_ PCWSTR exePath, _In_ PCWSTR appId);
 	INTERACTIVENOTIFICATIONS_API HRESULT RegisterComServer(_In_ PCWSTR exePath);
 
 	INTERACTIVENOTIFICATIONS_API HRESULT RegisterActivator();
 	INTERACTIVENOTIFICATIONS_API void UnregisterActivator();
-	INTERACTIVENOTIFICATIONS_API void silentActivation();
+	INTERACTIVENOTIFICATIONS_API void silentActivation(_In_ PCWSTR shortcut, _In_ PCWSTR appId);
+
+	// Sanity check
+	INTERACTIVENOTIFICATIONS_API double Add(double a, double b);
 		
 	// Sample stuff - I'm not sure that the toast stuff needs to be here
 	INTERACTIVENOTIFICATIONS_API HRESULT SendTestToast();
 
-	// Sanity check
-	INTERACTIVENOTIFICATIONS_API double Add(double a, double b);
 	INTERACTIVENOTIFICATIONS_API HRESULT CreateToastXml(
 		_In_ ABI::Windows::UI::Notifications::IToastNotificationManagerStatics* toastManager,
 		_COM_Outptr_ ABI::Windows::Data::Xml::Dom::IXmlDocument** xml);
 
 	INTERACTIVENOTIFICATIONS_API HRESULT CreateToast(
 		_In_ ABI::Windows::UI::Notifications::IToastNotificationManagerStatics* toastManager,
-		_In_ ABI::Windows::Data::Xml::Dom::IXmlDocument* xml
+		_In_ ABI::Windows::Data::Xml::Dom::IXmlDocument* xml,
+		_In_ PCWSTR appId
 	);
 }

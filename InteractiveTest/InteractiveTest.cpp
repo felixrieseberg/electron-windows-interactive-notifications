@@ -39,7 +39,10 @@ int main()
 
 	cout << "Sanity check " << InteractiveNotifications::Add(a, b);
 
-	HRESULT hr = InteractiveNotifications::RegisterAppForNotificationSupport();
+	const wchar_t appId[] = L"Felix.Lol.Test";
+	const wchar_t shortcut[] = LR"(Microsoft\Windows\Start Menu\Lol.lnk)";
+
+	HRESULT hr = InteractiveNotifications::RegisterAppForNotificationSupport(shortcut, appId);
 	
 	if (SUCCEEDED(hr))
 	{

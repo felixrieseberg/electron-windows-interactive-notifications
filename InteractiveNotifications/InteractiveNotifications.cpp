@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "InteractiveNotifications.h"
-#include "NotificationActivationCallback.h"
+#include <NotificationActivationCallback.h>
 
 #include <fstream>
 #include <string>
@@ -51,7 +51,7 @@ typedef HandleT<CoTaskMemStringTraits> CoTaskMemString;
 
 // Todo: Make this magically dynamic
 const wchar_t AppId[] = L"Felix.Lol.Test";
-const wchar_t Shortcut[] = LR"(Microsoft\Windows\Start Menu\Lol.lnk)";
+//const wchar_t Shortcut[] = LR"(Microsoft\Windows\Start Menu\Lol.lnk)";
 
 // For the app to be activated from Action Center, it needs to provide a COM server to be called
 // when the notification is activated.  The CLSID of the object needs to be registered with the
@@ -78,14 +78,12 @@ CoCreatableClass(NotificationActivator);
 
 namespace InteractiveNotifications
 {
-
 	INTERACTIVENOTIFICATIONS_API double Add(double a, double b)
 	{
-		// Sanity check
 		return a + b;
 	}
 
-	INTERACTIVENOTIFICATIONS_API HRESULT RegisterAppForNotificationSupport()
+	INTERACTIVENOTIFICATIONS_API HRESULT RegisterAppForNotificationSupport(PCWSTR shortcut, PCWSTR appId)
 	{
 		CoTaskMemString appData;
 		auto hr = ::SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, appData.GetAddressOf());
@@ -94,7 +92,7 @@ namespace InteractiveNotifications
 		{
 			wchar_t shortcutPath[MAX_PATH];
 			// Todo: Don't hardcode the path
-			hr = ::PathCchCombine(shortcutPath, ARRAYSIZE(shortcutPath), appData.Get(), Shortcut);
+			hr = ::PathCchCombine(shortcutPath, ARRAYSIZE(shortcutPath), appData.Get(), shortcut);
 
 			if (SUCCEEDED(hr))
 			{
@@ -110,7 +108,7 @@ namespace InteractiveNotifications
 
 					if (SUCCEEDED(hr))
 					{
-						hr = InstallShortcut(shortcutPath, exePath);
+						hr = InstallShortcut(shortcutPath, exePath, appId);
 						if (SUCCEEDED(hr))
 						{
 							hr = RegisterComServer(exePath);
@@ -123,7 +121,7 @@ namespace InteractiveNotifications
 	}
 
 	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API HRESULT InstallShortcut(PCWSTR shortcutPath, PCWSTR exePath)
+	INTERACTIVENOTIFICATIONS_API HRESULT InstallShortcut(PCWSTR shortcutPath, PCWSTR exePath, PCWSTR appId)
 	{
 		// This looks like callback hell, this should be cleaner
 		ComPtr<IShellLink> shellLink;
@@ -140,7 +138,7 @@ namespace InteractiveNotifications
 				{
 					PROPVARIANT propVar;
 					propVar.vt = VT_LPWSTR;
-					propVar.pwszVal = const_cast<PWSTR>(AppId); // for _In_ scenarios, we don't need a copy
+					propVar.pwszVal = const_cast<PWSTR>(appId); // for _In_ scenarios, we don't need a copy
 					hr = propertyStore->SetValue(PKEY_AppUserModel_ID, propVar);
 					if (SUCCEEDED(hr))
 					{
@@ -210,9 +208,9 @@ namespace InteractiveNotifications
 	}
 
 	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API void silentActivation()
+	INTERACTIVENOTIFICATIONS_API void silentActivation(PCWSTR shortcut, PCWSTR appId)
 	{
-		RegisterAppForNotificationSupport();
+		RegisterAppForNotificationSupport(shortcut, appId);
 		RegisterActivator();
 	}
 
@@ -253,10 +251,10 @@ namespace InteractiveNotifications
 	}
 
 	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API HRESULT CreateToast(IToastNotificationManagerStatics* toastManager, IXmlDocument* xml)
+	INTERACTIVENOTIFICATIONS_API HRESULT CreateToast(IToastNotificationManagerStatics* toastManager, IXmlDocument* xml, PCWSTR appId)
 	{
 		ComPtr<IToastNotifier> notifier;
-		HRESULT hr = toastManager->CreateToastNotifierWithId(HStringReference(AppId).Get(), &notifier);
+		HRESULT hr = toastManager->CreateToastNotifierWithId(HStringReference(appId).Get(), &notifier);
 		if (SUCCEEDED(hr))
 		{
 			ComPtr<IToastNotificationFactory> factory;
@@ -346,7 +344,7 @@ namespace InteractiveNotifications
 			hr = CreateToastXml(toastStatics.Get(), &toastXml);
 			if (SUCCEEDED(hr))
 			{
-				hr = CreateToast(toastStatics.Get(), toastXml.Get());
+				hr = CreateToast(toastStatics.Get(), toastXml.Get(), AppId);
 			}
 		}
 
@@ -361,9 +359,9 @@ extern "C"
 		return InteractiveNotifications::Add(a, b);
 	}
 
-	__declspec(dllexport) void RegisterForNotificationSupport()
+	__declspec(dllexport) void RegisterForNotificationSupport(PCWSTR shortcut, PCWSTR appId)
 	{
-		InteractiveNotifications::RegisterAppForNotificationSupport();
+		InteractiveNotifications::RegisterAppForNotificationSupport(shortcut, appId);
 	}
 
 	__declspec(dllexport) void RegisterActivator()
