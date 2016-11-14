@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "standard && node ./test/test.js",
-    "install": "node-gyp clean configure build --verbose --arch=ia32 --debug"
+    "install": "node-gyp clean configure build --verbose --arch=ia32"
   },
   "repository": "https://github.com/felixrieseberg/InteractiveNotifications",
   "license": "MIT",

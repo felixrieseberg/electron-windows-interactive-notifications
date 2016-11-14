@@ -11,10 +11,6 @@
 *.userprefs
 
 # Build results
-[Dd]ebug/
-[Dd]ebugPublic/
-[Rr]elease/
-[Rr]eleases/
 x64/
 x86/
 bld/
@@ -273,3 +269,12 @@ __pycache__/
 
 node_modules
 build
+
+InteractiveNotificationsTest/[Dd]ebug
+InteractiveNotificationsTest/[Rr]elease
+InteractiveTest/Debug
+InteractiveTest/Release
+InteractiveManagedTest/Debug
+InteractiveManagedTest/Release
+InteractiveNotifications/Debug
+InteractiveNotifications/Release
