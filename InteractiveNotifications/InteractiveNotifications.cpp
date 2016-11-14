@@ -57,9 +57,9 @@ const wchar_t Shortcut[] = LR"(Microsoft\Windows\Start Menu\Slack.lnk)";
 // For the app to be activated from Action Center, it needs to provide a COM server to be called
 // when the notification is activated.  The CLSID of the object needs to be registered with the
 // OS via its shortcut so that it knows who to call later.
-class DECLSPEC_UUID(__CSID) NotificationActivator WrlSealed
+class DECLSPEC_UUID(__CSID) NotificationActivator WrlSealed WrlFinal
 : public RuntimeClass < RuntimeClassFlags<ClassicCom>,
-	INotificationActivationCallback > WrlFinal
+	INotificationActivationCallback >
 {
 public:
 	virtual HRESULT STDMETHODCALLTYPE Activate(
