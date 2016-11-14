@@ -8,7 +8,7 @@
 	  "libraries": [ "-lruntimeobject.lib","-lshlwapi.lib" ],
       "include_dirs": [
         "<!(node -e \"require('nan')\")",
-				"../InteractiveNotifications"
+				"./InteractiveNotifications"
       ],
 	  "link_settings": {
 		"libraries": [
@@ -20,7 +20,7 @@
 			"msvs_settings": {
 				"VCLinkerTool": {
 					"AdditionalLibraryDirectories": [
-						"../../Debug"
+						"../Debug"
 					]
 				}
 			}
@@ -29,7 +29,7 @@
 			"msvs_settings": {
 				"VCLinkerTool": {
 					"AdditionalLibraryDirectories": [
-						"../../Release"
+						"../Release"
 					]
 				}
 			}
