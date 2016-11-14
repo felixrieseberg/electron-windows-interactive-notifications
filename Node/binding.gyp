@@ -2,13 +2,13 @@
   "targets": [
     {
       "target_name": "notifications_bindings",
-      "sources": [ 
+      "sources": [
 	    "lib/notifications_bindings.cc"
 	  ],
 	  "libraries": [ "-lruntimeobject.lib","-lshlwapi.lib" ],
       "include_dirs": [
         "<!(node -e \"require('nan')\")",
-		"../InteractiveNotifications"
+				"../InteractiveNotifications"
       ],
 	  "link_settings": {
 		"libraries": [
