@@ -1,7 +1,15 @@
-const ffi = require('ffi')
-const lib = ffi.Library('../../InteractiveNotifications/Debug/InteractiveNotifications', {
-    'CRegisterForNotificationSupport': ['string', []]
-})
+const addon = require('bindings')('notifications_bindings');
 
-console.log(lib)
-console.log(lib.CRegisterForNotificationSupport())
+module.exports = {
+    registerAppForNotificationSupport: function (shortcutPath, appId) {
+        return addon.registerAppForNotificationSupport(shortcutPath, appId);
+    },
+
+    registerActivator: function () {
+        return addon.registerActivator();
+    },
+
+    unregisterActivator: function () {
+        return addon.unregisterActivator();
+    }
+}
