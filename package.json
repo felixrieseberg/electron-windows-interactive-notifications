@@ -1,19 +1,24 @@
 {
-  "name": "interactive-notifications",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "windows-interactive-notifications",
+  "version": "0.1.0",
+  "description": "Interactive notifications for Windows, from Node",
+  "main": "lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "standard && node ./test/test.js",
+    "install": "node-gyp clean configure build --verbose --arch=ia32 --debug"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/felixrieseberg/InteractiveNotifications.git"
+  "repository": "https://github.com/felixrieseberg/InteractiveNotifications",
+  "license": "MIT",
+  "dependencies": {
+    "bindings": "^1.2.1",
+    "nan": "^2.4.0"
   },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/felixrieseberg/InteractiveNotifications/issues"
+  "author": {
+    "email": "felix@felixrieseberg.com",
+    "name": "Felix Rieseberg",
+    "url": "http://www.felixrieseberg.com"
   },
-  "homepage": "https://github.com/felixrieseberg/InteractiveNotifications#readme"
+  "devDependencies": {
+    "fs-extra": "^1.0.0"
+  }
 }

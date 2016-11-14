@@ -270,3 +270,6 @@ __pycache__/
 
 # Cake - Uncomment if you are using it
 # tools/
+
+node_modules
+build
