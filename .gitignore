@@ -11,8 +11,7 @@
 *.userprefs
 
 # Build results
-x64/
-x86/
+
 bld/
 [Bb]in/
 [Oo]bj/
@@ -270,6 +269,10 @@ __pycache__/
 node_modules
 build
 
+Debug
+debug
+Release
+release
 InteractiveNotificationsTest/[Dd]ebug
 InteractiveNotificationsTest/[Rr]elease
 InteractiveTest/Debug
@@ -278,3 +281,7 @@ InteractiveManagedTest/Debug
 InteractiveManagedTest/Release
 InteractiveNotifications/Debug
 InteractiveNotifications/Release
+
+!dll
+!dll/x64
+!dll/ia32
