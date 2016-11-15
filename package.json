@@ -4,7 +4,8 @@
   "description": "Interactive notifications for Windows, from Node",
   "main": "lib/index.js",
   "scripts": {
-    "test": "standard && node ./test/test.js"
+    "test": "standard && node ./test/test.js",
+    "postinstall": "node ./scripts/postinstall.js"
   },
   "repository": "https://github.com/felixrieseberg/InteractiveNotifications",
   "license": "MIT",
