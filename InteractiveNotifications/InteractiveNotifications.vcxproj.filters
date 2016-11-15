@@ -12,6 +12,5 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
-    <Text Include="alwayscopy.txt" />
   </ItemGroup>
 </Project>

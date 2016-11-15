@@ -151,7 +151,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="alwayscopy.txt" />
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>

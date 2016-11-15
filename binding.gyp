@@ -16,42 +16,50 @@
 		]
 	  },
 	  "configurations": {
-		"Debug": {
-			"msvs_settings": {
-				"VCLinkerTool": {
-					"conditions": [
-						['target_arch=="x64"', {
-							"AdditionalLibraryDirectories": [
-								"../x64/Debug"
-							],
-						}],
-						['target_arch=="ia32"', {
-							"AdditionalLibraryDirectories": [
-								"../ia32/Debug"
-							],
-						}]
-					]
-				}
-			}
-		},
-		"Release": {
-			"msvs_settings": {
-				"VCLinkerTool": {
-					"conditions": [
-						['target_arch=="x64"', {
-							"AdditionalLibraryDirectories": [
-								"../x64/Release"
-							],
-						}],
-						['target_arch=="ia32"', {
-							"AdditionalLibraryDirectories": [
-								"../ia32/Debug"
-							],
-						}]
-					]
-				}
-			}
-		}
+			"Debug": {
+				"conditions": [
+					['target_arch=="x64"', {
+						"msvs_settings": {
+							"VCLinkerTool": {
+								"AdditionalLibraryDirectories": [
+									"../dll/x64"
+								],
+							}
+						}
+					}],
+					['target_arch=="ia32"', {
+						"msvs_settings": {
+							"VCLinkerTool": {
+								"AdditionalLibraryDirectories": [
+									"../dll/ia32"
+								],
+							}
+						}
+					}]
+				]
+			},
+			"Release": {
+				"conditions": [
+					['target_arch=="x64"', {
+						"msvs_settings": {
+							"VCLinkerTool": {
+								"AdditionalLibraryDirectories": [
+									"../dll/x64"
+								],
+							}
+						}
+					}],
+					['target_arch=="ia32"', {
+						"msvs_settings": {
+							"VCLinkerTool": {
+								"AdditionalLibraryDirectories": [
+									"../dll/ia32"
+								],
+							}
+						}
+					}]
+				]
+			},
 	  }
 	}
   ]
