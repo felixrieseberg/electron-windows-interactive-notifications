@@ -5,8 +5,6 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InteractiveNotifications", "InteractiveNotifications\InteractiveNotifications.vcxproj", "{B91A1412-0DC3-44DE-B509-CBBDB2FF48D8}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InteractiveTest", "InteractiveTest\InteractiveTest.vcxproj", "{D7F7348F-6D8E-4304-9A2B-09A9AE6EDCA5}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InteractiveManagedTest", "InteractiveManagedTest\InteractiveManagedTest.csproj", "{AB8EB3E3-6DBD-4D92-A487-D9E032116A73}"
 EndProject
 Global
@@ -25,10 +23,6 @@ Global
 		{B91A1412-0DC3-44DE-B509-CBBDB2FF48D8}.Release|x64.Build.0 = Release|x64
 		{B91A1412-0DC3-44DE-B509-CBBDB2FF48D8}.Release|x86.ActiveCfg = Release|Win32
 		{B91A1412-0DC3-44DE-B509-CBBDB2FF48D8}.Release|x86.Build.0 = Release|Win32
-		{D7F7348F-6D8E-4304-9A2B-09A9AE6EDCA5}.Debug|x64.ActiveCfg = Debug|x64
-		{D7F7348F-6D8E-4304-9A2B-09A9AE6EDCA5}.Debug|x86.ActiveCfg = Debug|Win32
-		{D7F7348F-6D8E-4304-9A2B-09A9AE6EDCA5}.Release|x64.ActiveCfg = Release|x64
-		{D7F7348F-6D8E-4304-9A2B-09A9AE6EDCA5}.Release|x86.ActiveCfg = Release|Win32
 		{AB8EB3E3-6DBD-4D92-A487-D9E032116A73}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{AB8EB3E3-6DBD-4D92-A487-D9E032116A73}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{AB8EB3E3-6DBD-4D92-A487-D9E032116A73}.Release|x64.ActiveCfg = Release|Any CPU
