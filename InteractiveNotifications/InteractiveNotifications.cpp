@@ -94,6 +94,7 @@ public:
 			case '>': escapedArgs += "^>"; break;
 			case '|': escapedArgs += "^|"; break;
 			case '^': escapedArgs += "^^"; break;
+			case '"': escapedArgs += "^\""; break;
 			default: escapedArgs += ch; break;
 			}
 		}
@@ -112,6 +113,7 @@ public:
 			case '>': escapedToastArgs += "^>"; break;
 			case '|': escapedToastArgs += "^|"; break;
 			case '^': escapedToastArgs += "^^"; break;
+			case '"': escapedToastArgs += "^\""; break;
 			default: escapedToastArgs += ch; break;
 			}
 		}

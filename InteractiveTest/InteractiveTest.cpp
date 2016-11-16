@@ -36,26 +36,14 @@ int main()
 	const wchar_t appId[] = L"Felix.Lol.Test";
 	const wchar_t shortcut[] = LR"(Microsoft\Windows\Start Menu\Lol.lnk)";
 
-	HRESULT hr = InteractiveNotifications::RegisterAppForNotificationSupport(shortcut, appId);
-	
-	if (SUCCEEDED(hr))
-	{
-		cout << "\nRegisterAppForNotificationSupport worked..." << endl;
-	}
+	//HRESULT hr = InteractiveNotifications::RegisterAppForNotificationSupport(shortcut, appId);
 
-	hr = InteractiveNotifications::RegisterActivator();
+	//std::string link = "slack://reply/?channel=D221YR34P&userId=U211G89NY&teamId=T2104UHEX&msg=1479332281.000018";
+	std::string link = "http://google.com";
 
-	if (SUCCEEDED(hr))
-	{
-		cout << "RegisterActivator worked..." << endl;
-	}
+	WinExec(link.c_str(), SW_NORMAL);
 
-	if (SUCCEEDED(hr))
-	{
-		cout << "Sending test notification worked..." << endl;
-	}
-
-	//system("pause");
+	system("pause");
 
 	return 0;
 }
