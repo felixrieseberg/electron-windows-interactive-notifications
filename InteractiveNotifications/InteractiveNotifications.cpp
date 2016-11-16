@@ -88,6 +88,12 @@ public:
 		for (char ch : args) {
 			switch (ch) {
 			case ' ': escapedArgs += "%20;"; break;
+			case '&': escapedArgs += "^&"; break;
+			case '\\': escapedArgs += "^\\"; break;
+			case '<': escapedArgs += "^<"; break;
+			case '>': escapedArgs += "^>"; break;
+			case '|': escapedArgs += "^|"; break;
+			case '^': escapedArgs += "^^"; break;
 			default: escapedArgs += ch; break;
 			}
 		}
@@ -110,7 +116,7 @@ public:
 			}
 		}
 
-		std::string cmdLine = "start slack://" + toastArgs + "args={" + escapedArgs + "}";
+		std::string cmdLine = "start slack://" + escapedToastArgs + "args={" + escapedArgs + "}";
 		system(cmdLine.c_str());
 
 		return HRESULT();
