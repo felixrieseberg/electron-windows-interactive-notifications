@@ -118,8 +118,8 @@ public:
 			}
 		}
 
-		std::string cmdLine = "start slack://" + escapedToastArgs + "^&userData=[{" + escapedArgs + "}]";
-		system(cmdLine.c_str());
+		std::string cmdLine = "cmd.exe \"start slack://" + escapedToastArgs + "^&userData=[{" + escapedArgs + "}]\"";
+		WinExec(cmdLine.c_str(), SW_HIDE);
 
 		return HRESULT();
 	}
