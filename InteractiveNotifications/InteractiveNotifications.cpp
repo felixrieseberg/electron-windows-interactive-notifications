@@ -80,14 +80,14 @@ public:
 			std::string value(wvalue.begin(), wvalue.end());
 			std::string key(wkey.begin(), wkey.end());
 
-			args = args + "key:\"" + key + "\"";
-			args = args + ";value:\"" + value + "\"";
+			args = args + "\"key\":\"" + key + "\"";
+			args = args + ",\"value\":\"" + value + "\"";
 		}
 
 		std::string escapedArgs = "";
 		for (char ch : args) {
 			switch (ch) {
-			case ' ': escapedArgs += "%20;"; break;
+			case ' ': escapedArgs += "%20"; break;
 			case '&': escapedArgs += "^&"; break;
 			case '\\': escapedArgs += "^\\"; break;
 			case '<': escapedArgs += "^<"; break;
@@ -105,7 +105,7 @@ public:
 		std::string escapedToastArgs = "";
 		for (char ch : toastArgs) {
 			switch (ch) {
-			case ' ': escapedToastArgs += "%20;"; break;
+			case ' ': escapedToastArgs += "%20"; break;
 			case '&': escapedToastArgs += "^&"; break;
 			case '\\': escapedToastArgs += "^\\"; break;
 			case '<': escapedToastArgs += "^<"; break;
@@ -116,7 +116,7 @@ public:
 			}
 		}
 
-		std::string cmdLine = "start slack://" + escapedToastArgs + "args={" + escapedArgs + "}";
+		std::string cmdLine = "start slack://" + escapedToastArgs + "&userData=\"{" + escapedArgs + "}\"";
 		system(cmdLine.c_str());
 
 		return HRESULT();
