@@ -116,7 +116,7 @@ public:
 			}
 		}
 
-		std::string cmdLine = "start slack://" + escapedToastArgs + "&userData=\"{" + escapedArgs + "}\"";
+		std::string cmdLine = "start slack://" + escapedToastArgs + "&userData={" + escapedArgs + "}";
 		system(cmdLine.c_str());
 
 		return HRESULT();
