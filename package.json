@@ -5,7 +5,12 @@
   "main": "lib/index.js",
   "scripts": {
     "postinstall": "node ./scripts/postinstall.js",
-    "preversion": "node ./scripts/preversion.js && git add dll/ && git commit -m \":package: Update dlls\""
+    "preversion": "npm run build && npm run copydlls && npm run commitdlls",
+    "copydlls": "xcopy .\\Release .\\dll\\ia32 /y && xcopy .\\x64\\Release .\\dll\\x64 /y",
+    "commitdlls": "git add .\\dll\\ && git commit -m \":package: Update dlls\"",
+    "build64": " msbuild .\\InteractiveNotifications.sln /p:Configuration=Release /p:Platform=x64",
+    "build86": " msbuild .\\InteractiveNotifications.sln /p:Configuration=Release /p:Platform=x86",
+    "build": "npm run build64 && npm run build86"
   },
   "repository": "https://github.com/felixrieseberg/InteractiveNotifications",
   "license": "MIT",
