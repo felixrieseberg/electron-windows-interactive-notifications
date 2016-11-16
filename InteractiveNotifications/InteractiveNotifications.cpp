@@ -94,6 +94,22 @@ public:
 
 		std::wstring wToastArgs(invokedArgs);
 		std::string toastArgs(wToastArgs.begin(), wToastArgs.end());
+
+		// CMD needs stuff escaped, so we'll do that here
+		std::string escapedToastArgs = "";
+		for (char ch : toastArgs) {
+			switch (ch) {
+			case ' ': escapedToastArgs += "%20;"; break;
+			case '&': escapedToastArgs += "^&"; break;
+			case '\\': escapedToastArgs += "^\\"; break;
+			case '<': escapedToastArgs += "^<"; break;
+			case '>': escapedToastArgs += "^>"; break;
+			case '|': escapedToastArgs += "^|"; break;
+			case '^': escapedToastArgs += "^^"; break;
+			default: escapedToastArgs += ch; break;
+			}
+		}
+
 		std::string cmdLine = "start slack://" + toastArgs + "args={" + escapedArgs + "}";
 		system(cmdLine.c_str());
 
