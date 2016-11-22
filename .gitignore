@@ -281,7 +281,3 @@ InteractiveManagedTest/Debug
 InteractiveManagedTest/Release
 InteractiveNotifications/Debug
 InteractiveNotifications/Release
-
-!dll
-!dll/x64
-!dll/ia32

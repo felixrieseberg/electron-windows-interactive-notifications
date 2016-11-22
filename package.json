@@ -4,10 +4,8 @@
   "description": "Interactive notifications for Windows, from Node",
   "main": "lib/index.js",
   "scripts": {
+    "preinstall": "node ./scripts/preinstall.js && npm run build",
     "postinstall": "node ./scripts/postinstall.js",
-    "preversion": "npm run build && npm run copydlls && npm run commitdlls",
-    "copydlls": "xcopy .\\Release .\\dll\\ia32 /y && xcopy .\\x64\\Release .\\dll\\x64 /y /e /v",
-    "commitdlls": "git add .\\dll\\ && git commit -m \":package: Update dlls\" || exit 0;",
     "build64": " msbuild .\\InteractiveNotifications.sln /p:Configuration=Release /p:Platform=x64",
     "build86": " msbuild .\\InteractiveNotifications.sln /p:Configuration=Release /p:Platform=x86",
     "build": "npm run build64 && npm run build86"
