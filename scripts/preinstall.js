@@ -9,3 +9,4 @@
 */
 
 require('./replaceguid')()
+require('./replaceprotocol')()

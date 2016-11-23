@@ -5,18 +5,9 @@
 const path = require('path')
 const fs = require('fs')
 const crypto = require('crypto')
+const {replaceSync} = require('./utils')
 
 const DEFINED_CLSID = /A23D2B18-8DD7-403A-B9B7-152B40A1478C/gi
-
-function replaceSync (file, find, replace) {
-  const contents = fs.readFileSync(file, 'utf8')
-  const newContents = contents.replace(find, replace)
-
-  if (newContents === contents) return false
-
-  fs.writeFileSync(file, newContents, 'utf8')
-  return true
-}
 
 function getClsid () {
   if (process.env.TOAST_ACTIVATOR_CLSID) return process.env.TOAST_ACTIVATOR_CLSID
@@ -56,12 +47,12 @@ function replaceCLSID () {
   const newClsid = getClsid()
   const cppFile = path.join(__dirname, '..', 'InteractiveNotifications', 'InteractiveNotifications.cpp')
 
-  console.log(`\n##### ToastActivitorCLSID #####`)
+  console.log(`\n##### ToastActivitorCLSID #################################`)
   console.log(`DLLs will be compiled with the following ToastActivitorCLSID:`)
   console.log(newClsid)
-  console.log(`###############################\n`)
+  console.log(`###########################################################\n`)
 
-  replaceSync(cppFile, DEFINED_CLSID, getClsid)
+  replaceSync(cppFile, DEFINED_CLSID, newClsid)
 }
 
 module.exports = replaceCLSID

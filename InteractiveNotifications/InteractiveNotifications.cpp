@@ -52,7 +52,7 @@ typedef HandleT<CoTaskMemStringTraits> CoTaskMemString;
 
 const wchar_t Shortcut[] = LR"(Microsoft\Windows\Start Menu\Slack.lnk)";
 
-#define __CSID "A23D2B18-8DD7-403A-B9B7-152B40A1478C"
+#define __CSID "B23D2B18-8DD7-403A-B9B7-152B40A1478C"
 
 // For the app to be activated from Action Center, it needs to provide a COM server to be called
 // when the notification is activated.  The CLSID of the object needs to be registered with the
@@ -118,8 +118,8 @@ public:
 			}
 		}
 
-		std::string winExecCmd = "cmd.exe /C \"start slack://" + escapedToastArgs + "^&userData=[{" + escapedArgs + "}]\"";
-		std::string systemCmd = "start slack://" + escapedToastArgs + "^&userData=[{" + escapedArgs + "}]";
+		std::string winExecCmd = "cmd.exe /C \"start myapp://" + escapedToastArgs + "^&userData=[{" + escapedArgs + "}]\"";
+		std::string systemCmd = "start myapp://" + escapedToastArgs + "^&userData=[{" + escapedArgs + "}]";
 		system(systemCmd.c_str());
 
 		return HRESULT();
@@ -209,7 +209,7 @@ namespace InteractiveNotifications
 		// We don't need to worry about overflow here as ::GetModuleFileName won't
 		// return anything bigger than the max file system path (much fewer than max of DWORD).
 		DWORD dataSize = static_cast<DWORD>((::wcslen(exePath) + 1) * sizeof(WCHAR));
-		auto key = LR"(SOFTWARE\Classes\CLSID\{A23D2B18-8DD7-403A-B9B7-152B40A1478C}\LocalServer32)";
+		auto key = LR"(SOFTWARE\Classes\CLSID\{B23D2B18-8DD7-403A-B9B7-152B40A1478C}\LocalServer32)";
 
 		return HRESULT_FROM_WIN32(::RegSetKeyValue(
 			HKEY_CURRENT_USER,

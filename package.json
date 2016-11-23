@@ -19,6 +19,9 @@
   "os": [
     "win32"
   ],
+  "engines": {
+    "node": ">6.0.0"
+  },
   "author": {
     "email": "felix@felixrieseberg.com",
     "name": "Felix Rieseberg",
