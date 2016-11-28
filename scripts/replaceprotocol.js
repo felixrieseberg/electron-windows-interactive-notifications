@@ -28,7 +28,7 @@ function getProtocolFromPackage () {
   let appPackage = getAppPackage() || {}
   let interativeNotifications = appPackage['interactive-notifications'] || {}
 
-  return interativeNotifications.protocol || null
+  return interativeNotifications['protocol'] || null
 }
 
 /**
@@ -40,7 +40,13 @@ function getProtocolFromPackage () {
  * @returns {string}
  */
 function getProtocol () {
-  return getProtocolFromEnvironment() || getProtocolFromPackage()
+  let protocol = getProtocolFromEnvironment() || getProtocolFromPackage()
+
+  if (!protocol) {
+    throw new Error('No protocol defined, please consult windows-interactive-notifications readme!')
+  }
+
+  return protocol
 }
 
 /**
