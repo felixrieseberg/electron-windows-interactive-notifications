@@ -22,7 +22,7 @@
 						"msvs_settings": {
 							"VCLinkerTool": {
 								"AdditionalLibraryDirectories": [
-									"../dll/x64"
+									"../x64/Release"
 								],
 							}
 						}
@@ -31,7 +31,7 @@
 						"msvs_settings": {
 							"VCLinkerTool": {
 								"AdditionalLibraryDirectories": [
-									"../dll/ia32"
+									"../Release"
 								],
 							}
 						}
@@ -44,7 +44,7 @@
 						"msvs_settings": {
 							"VCLinkerTool": {
 								"AdditionalLibraryDirectories": [
-									"../dll/x64"
+									"../x64/Release"
 								],
 							}
 						}
@@ -53,7 +53,7 @@
 						"msvs_settings": {
 							"VCLinkerTool": {
 								"AdditionalLibraryDirectories": [
-									"../dll/ia32"
+									"../Release"
 								],
 							}
 						}
