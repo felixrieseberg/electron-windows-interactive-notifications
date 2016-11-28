@@ -84,43 +84,53 @@ public:
 			args = args + ",\"value\":\"" + value + "\"";
 		}
 
-		std::string escapedArgs = "";
-		for (char ch : args) {
-			switch (ch) {
-			case ' ': escapedArgs += "%20"; break;
-			case '&': escapedArgs += "^&"; break;
-			case '\\': escapedArgs += "^\\"; break;
-			case '<': escapedArgs += "^<"; break;
-			case '>': escapedArgs += "^>"; break;
-			case '|': escapedArgs += "^|"; break;
-			case '^': escapedArgs += "^^"; break;
-			case '"': escapedArgs += "^%22"; break;
-			default: escapedArgs += ch; break;
-			}
-		}
-
 		std::wstring wToastArgs(invokedArgs);
 		std::string toastArgs(wToastArgs.begin(), wToastArgs.end());
 
-		// CMD needs stuff escaped, so we'll do that here
-		std::string escapedToastArgs = "";
-		for (char ch : toastArgs) {
-			switch (ch) {
-			case ' ': escapedToastArgs += "%20"; break;
-			case '&': escapedToastArgs += "^&"; break;
-			case '\\': escapedToastArgs += "^\\"; break;
-			case '<': escapedToastArgs += "^<"; break;
-			case '>': escapedToastArgs += "^>"; break;
-			case '|': escapedToastArgs += "^|"; break;
-			case '^': escapedToastArgs += "^^"; break;
-			case '"': escapedToastArgs += "%22"; break;
-			default: escapedToastArgs += ch; break;
-			}
-		}
+		// If you ever want to use system() or similar calls,
+		// you'll need to escape stuff. We're using ShellExecute,
+		// so we don't have to.
 
-		std::string winExecCmd = "cmd.exe /C \"start myapp://" + escapedToastArgs + "^&userData=[{" + escapedArgs + "}]\"";
-		std::string systemCmd = "start myapp://" + escapedToastArgs + "^&userData=[{" + escapedArgs + "}]";
-		system(systemCmd.c_str());
+		// std::string escapedArgs = "";
+		// for (char ch : args) {
+		// 	switch (ch) {
+		// 	case ' ': escapedArgs += "%20"; break;
+		// 	case '&': escapedArgs += "^&"; break;
+		// 	case '\\': escapedArgs += "^\\"; break;
+		// 	case '<': escapedArgs += "^<"; break;
+		// 	case '>': escapedArgs += "^>"; break;
+		// 	case '|': escapedArgs += "^|"; break;
+		// 	case '^': escapedArgs += "^^"; break;
+		// 	case '"': escapedArgs += "^%22"; break;
+		// 	default: escapedArgs += ch; break;
+		// 	}
+		// }
+		//
+		// std::string escapedToastArgs = "";
+		// for (char ch : toastArgs) {
+		// 	switch (ch) {
+		// 	case ' ': escapedToastArgs += "%20"; break;
+		// 	case '&': escapedToastArgs += "^&"; break;
+		// 	case '\\': escapedToastArgs += "^\\"; break;
+		// 	case '<': escapedToastArgs += "^<"; break;
+		// 	case '>': escapedToastArgs += "^>"; break;
+		// 	case '|': escapedToastArgs += "^|"; break;
+		// 	case '^': escapedToastArgs += "^^"; break;
+		// 	case '"': escapedToastArgs += "%22"; break;
+		// 	default: escapedToastArgs += ch; break;
+		// 	}
+		// }
+
+		// std::string systemCmd = "myapp://" + escapedToastArgs + "^&userData=[{" + escapedArgs + "}]";
+
+		std::string cmd = "myapp://" + toastArgs + "&userData=[{" + args + "}]";
+
+		ShellExecute(NULL,
+			TEXT("open"),
+			TEXT(systemCmd.c_str()),
+			NULL,
+			NULL,
+			SW_SHOWNORMAL);
 
 		return HRESULT();
 	}
