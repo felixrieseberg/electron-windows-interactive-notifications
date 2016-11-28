@@ -132,6 +132,8 @@ public:
 			NULL,
 			NULL,
 			SW_SHOWNORMAL);
+
+		return HRESULT();
 	}
 };
 CoCreatableClass(NotificationActivator);
