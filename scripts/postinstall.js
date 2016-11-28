@@ -1,7 +1,7 @@
 const path = require('path')
 const fs = require('fs')
 
-const releaseKey = process.arch === x64 ? 'x64/Release' : 'Release'
+const releaseKey = process.arch === 'x64' ? 'x64/Release' : 'Release'
 const from = path.join(__dirname, '..', 'dll', releaseKey, 'InteractiveNotifications.dll')
 const to = path.join(__dirname, '..', 'build', 'Release', 'InteractiveNotifications.dll')
 

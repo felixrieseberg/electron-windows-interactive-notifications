@@ -12,9 +12,17 @@ function replaceSync (file, find, replace) {
 }
 
 function getAppPackage () {
+  const cwd = process.cwd()
+  const ends = cwd.indexOf('node_modules\\.staging')
   let package = null
 
-  if (process.cwd()) {
+  if (ends > 0) {
+    try {
+      package = require(path.join(cwd.slice(0, ends), 'package.json'))
+    } catch (e) {
+      // no-op
+    }
+  } else {
     try {
       package = require(path.join(process.cwd(), 'package.json'))
     } catch (e) {

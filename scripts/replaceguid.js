@@ -88,6 +88,4 @@ function replaceCLSID () {
   replaceSync(cppFile, DEFINED_CLSID, newClsid)
 }
 
-console.log(getClsid())
-
 module.exports = replaceCLSID
