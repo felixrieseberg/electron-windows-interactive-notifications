@@ -6,7 +6,7 @@ const path = require('path')
 const fs = require('fs')
 const {replaceSync, getAppPackage} = require('./utils')
 
-const DEFINED_PROTOCOL = /slack:\/\//gi
+const DEFINED_PROTOCOL = /myapp:\/\//gi
 
 /**
  * Attempts to get the protocol from the environment

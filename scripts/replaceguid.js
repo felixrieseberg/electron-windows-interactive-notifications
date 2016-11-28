@@ -7,7 +7,7 @@ const fs = require('fs')
 const crypto = require('crypto')
 const {replaceSync, getAppPackage} = require('./utils')
 
-const DEFINED_CLSID = /A23D2B18-8DD7-403A-B9B7-152B40A1478C/gi
+const DEFINED_CLSID = /B23D2B18-8DD7-403A-B9B7-152B40A1478C/gi
 
 /**
  * Attempts to fetch the CLSID from the environment
