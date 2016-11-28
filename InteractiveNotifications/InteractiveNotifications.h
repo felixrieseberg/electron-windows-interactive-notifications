@@ -10,6 +10,7 @@
 #define INTERACTIVENOTIFICATIONS_API __declspec(dllimport)
 #endif
 
+#include <string>
 #include <windows.ui.notifications.h>
 
 namespace InteractiveNotifications {
@@ -19,5 +20,5 @@ namespace InteractiveNotifications {
 
 	INTERACTIVENOTIFICATIONS_API HRESULT RegisterActivator();
 	INTERACTIVENOTIFICATIONS_API void UnregisterActivator();
-	INTERACTIVENOTIFICATIONS_API void silentActivation();
+	INTERACTIVENOTIFICATIONS_API std::wstring s2ws(const std::string&);
 }

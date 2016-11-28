@@ -124,15 +124,14 @@ public:
 		// std::string systemCmd = "myapp://" + escapedToastArgs + "^&userData=[{" + escapedArgs + "}]";
 
 		std::string cmd = "myapp://" + toastArgs + "&userData=[{" + args + "}]";
+		std::wstring wCmd = InteractiveNotifications::s2ws(cmd);
 
 		ShellExecute(NULL,
 			TEXT("open"),
-			TEXT(systemCmd.c_str()),
+			wCmd.c_str(),
 			NULL,
 			NULL,
 			SW_SHOWNORMAL);
-
-		return HRESULT();
 	}
 };
 CoCreatableClass(NotificationActivator);
@@ -253,6 +252,22 @@ namespace InteractiveNotifications
 	{
 		Module<OutOfProc>::GetModule().UnregisterObjects();
 		Module<OutOfProc>::GetModule().DecrementObjectCount();
+	}
+
+	INTERACTIVENOTIFICATIONS_API std::wstring s2ws(const std::string& s)
+	{
+		int len;
+		int slength = (int)s.length() + 1;
+
+		len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
+
+		wchar_t* buf = new wchar_t[len];
+
+		MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
+		std::wstring r(buf);
+		delete[] buf;
+
+		return r;
 	}
 }
 
