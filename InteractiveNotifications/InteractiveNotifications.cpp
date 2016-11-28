@@ -123,10 +123,28 @@ public:
 
 		// std::string systemCmd = "myapp://" + escapedToastArgs + "^&userData=[{" + escapedArgs + "}]";
 
-		std::string cmd = "myapp://" + toastArgs + "&userData=[{" + args + "}]";
+		std::string escapedToastArgs = "";
+		for (char ch : toastArgs) {
+			switch (ch) {
+			case ' ': escapedToastArgs += "%20"; break;
+			case '"': escapedToastArgs += "%22"; break;
+			default: escapedToastArgs += ch; break;
+			}
+		}
+
+		std::string escapedArgs = "";
+		for (char ch : args) {
+			switch (ch) {
+			case ' ': escapedArgs += "%20"; break;
+			case '"': escapedArgs += "%22"; break;
+			default: escapedArgs += ch; break;
+			}
+		}
+
+		std::string cmd = "myapp://" + escapedToastArgs + "&userData=[{" + escapedArgs + "}]";
 		std::wstring wCmd = InteractiveNotifications::s2ws(cmd);
 
-		ShellExecute(NULL,
+		ShellExecuteW(NULL,
 			TEXT("open"),
 			wCmd.c_str(),
 			NULL,
