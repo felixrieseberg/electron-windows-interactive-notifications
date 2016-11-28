@@ -1,6 +1,6 @@
 {
   "name": "windows-interactive-notifications",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "Interactive notifications for Windows, from Node",
   "main": "lib/index.js",
   "scripts": {
