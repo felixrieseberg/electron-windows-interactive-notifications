@@ -4,7 +4,7 @@
   "description": "Interactive notifications for Windows, from Node",
   "main": "lib/index.js",
   "scripts": {
-    "preinstall": "node ./scripts/preinstall.js && npm run build",
+    "preinstall": "node ./scripts/preinstall.js && npm run build && node-gyp rebuild",
     "postinstall": "node ./scripts/postinstall.js",
     "build64": " msbuild .\\InteractiveNotifications.sln /p:Configuration=Release /p:Platform=x64",
     "build86": " msbuild .\\InteractiveNotifications.sln /p:Configuration=Release /p:Platform=x86",
