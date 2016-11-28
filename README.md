@@ -1,4 +1,4 @@
-# Windows Interactive Notifications, from Node
+# Windows Interactive Notifications, from Node or Electron
 This project allows you to respond to Windows interactive notifications. Interactive notifications allow the user to interact with the notification by entering data. In order to receive that data, your application will need to register a COM component with the operating system.
 
 # Installation
