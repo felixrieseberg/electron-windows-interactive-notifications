@@ -4,7 +4,7 @@
 
 const path = require('path')
 const fs = require('fs')
-const {replaceSync} = require('./utils')
+const {replaceSync, getAppPackage} = require('./utils')
 
 const DEFINED_PROTOCOL = /slack:\/\//gi
 
