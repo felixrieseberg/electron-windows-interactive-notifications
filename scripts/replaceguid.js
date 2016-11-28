@@ -90,4 +90,4 @@ function replaceCLSID () {
 
 console.log(getClsid())
 
-//module.exports = replaceCLSID
+module.exports = replaceCLSID
