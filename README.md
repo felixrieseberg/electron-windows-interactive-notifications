@@ -54,11 +54,11 @@ In order to receive interactive notification activations, your application must 
 
 Example
 ```javascript
-const {registerAppForNotificationSupport} = require('windows-interactive-notifications)
+const {registerAppForNotificationSupport} = require('windows-interactive-notifications')
 const shortcutPath = 'Microsoft\\Windows\\Start Menu\\MyApp.lnk'
 const appId = 'com.squirrel.mycompany.myapp'
 
-registerAppForNotificationSupport(shortcutPath, appId))
+registerAppForNotificationSupport(shortcutPath, appId)
 ```
 
 ## `registerActivator()`
