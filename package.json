@@ -1,6 +1,6 @@
 {
   "name": "electron-windows-interactive-notifications",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Interactive notifications for Windows, from Node",
   "main": "lib/index.js",
   "scripts": {
