@@ -137,8 +137,8 @@ public:
 			switch (ch) {
 			case ' ': escapedArgs += "%20"; break;
 			case '"': escapedArgs += "%22"; break;
-			case '\n': escapedArgs += "%0A"; break;
-			case '\r': escapedArgs += "%0A"; break;
+			case '\n': escapedArgs += "%5Cn"; break;
+			case '\r': escapedArgs += "%5Cr"; break;
 			default: escapedArgs += ch; break;
 			}
 		}
