@@ -63,6 +63,9 @@ const appId = 'com.squirrel.mycompany.myapp'
 registerAppForNotificationSupport(shortcutPath, appId)
 ```
 
+## `registerComServer()`
+Before registering the activator, make sure to register the COM Server. Automatically called by `registerAppForNotificationSupport()`, you only have to call this method if you used Squirrel or a different program to manage your shortcut.
+
 ## `registerActivator()`
 Use this method to enable the activator. It registers the COM component with Windows. Call it before sending a notification. Calling it multiple times has no downside.
 

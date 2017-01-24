@@ -22,21 +22,28 @@ NAN_METHOD(RegisterAppForNotificationSupport)
 		Nan::ThrowTypeError("Invalid arguments, expected arguments are: shortcut name[string], app id [string]");
 		return;
 	}
-	
+
 	Local<String> shortcutHandle = Nan::To<String>(info[0]).ToLocalChecked();
 	Local<String> appIdHandle = Nan::To<String>(info[1]).ToLocalChecked();
-	
+
 	String::Value shortcutStringValue(shortcutHandle);
 	String::Value appIdStringValue(appIdHandle);
 
 	HRESULT hr = InteractiveNotifications::RegisterAppForNotificationSupport((PCWSTR)*shortcutStringValue, (PCWSTR)*appIdStringValue);
-	
+
 	if (hr != S_OK)
 	{
 		Nan::ThrowError(String::Concat(Nan::New<String>("RegisterAppForNotificationsSupport Failed with error code:").ToLocalChecked(),
 			Nan::To<String>(Nan::New<Integer>(static_cast<int>(hr))).ToLocalChecked()));
 		return;
 	}
+}
+
+NAN_METHOD(RegisterComServer)
+{
+	Nan::HandleScope scope;
+
+	InteractiveNotifications::RegisterComServer();
 }
 
 NAN_METHOD(RegisterActivator)
@@ -57,6 +64,7 @@ NAN_MODULE_INIT(init) {
   // TODO: Make sure that this is necesarry..
   HRESULT hr = CoInitializeEx(NULL, COINITBASE_MULTITHREADED);
 
+  Nan::SetMethod(target, "registerComServer", RegisterComServer);
   Nan::SetMethod(target, "registerAppForNotificationSupport", RegisterAppForNotificationSupport);
   Nan::SetMethod(target, "registerActivator", RegisterActivator);
   Nan::SetMethod(target, "unregisterActivator", UnregisterActivator);

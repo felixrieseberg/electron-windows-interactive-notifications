@@ -16,8 +16,8 @@
 namespace InteractiveNotifications {
 	INTERACTIVENOTIFICATIONS_API HRESULT RegisterAppForNotificationSupport(PCWSTR shortcut, PCWSTR appId);
 	INTERACTIVENOTIFICATIONS_API HRESULT InstallShortcut(_In_ PCWSTR shortcutPath, _In_ PCWSTR exePath, PCWSTR appId);
-	INTERACTIVENOTIFICATIONS_API HRESULT RegisterComServer(_In_ PCWSTR exePath);
 
+	INTERACTIVENOTIFICATIONS_API HRESULT RegisterComServer();
 	INTERACTIVENOTIFICATIONS_API HRESULT RegisterActivator();
 	INTERACTIVENOTIFICATIONS_API void UnregisterActivator();
 	INTERACTIVENOTIFICATIONS_API std::wstring s2ws(const std::string&);

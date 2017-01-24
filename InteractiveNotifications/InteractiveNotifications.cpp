@@ -167,7 +167,7 @@ namespace InteractiveNotifications
 		if (SUCCEEDED(hr))
 		{
 			wchar_t shortcutPath[MAX_PATH];
-			// Todo: Don't hardcode the path
+
 			hr = ::PathCchCombine(shortcutPath, ARRAYSIZE(shortcutPath), appData.Get(), shortcut);
 
 			if (SUCCEEDED(hr))
@@ -187,12 +187,13 @@ namespace InteractiveNotifications
 						hr = InstallShortcut(shortcutPath, exePath, appId);
 						if (SUCCEEDED(hr))
 						{
-							hr = RegisterComServer(exePath);
+							hr = RegisterComServer();
 						}
 					}
 				}
 			}
 		}
+
 		return hr;
 	}
 
@@ -234,20 +235,29 @@ namespace InteractiveNotifications
 	}
 
 	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API HRESULT RegisterComServer(PCWSTR exePath)
+	INTERACTIVENOTIFICATIONS_API HRESULT RegisterComServer()
 	{
-		// We don't need to worry about overflow here as ::GetModuleFileName won't
-		// return anything bigger than the max file system path (much fewer than max of DWORD).
-		DWORD dataSize = static_cast<DWORD>((::wcslen(exePath) + 1) * sizeof(WCHAR));
-		auto key = LR"(SOFTWARE\Classes\CLSID\{B23D2B18-8DD7-403A-B9B7-152B40A1478C}\LocalServer32)";
+		wchar_t exePath[MAX_PATH];
+		DWORD charWritten = ::GetModuleFileName(nullptr, exePath, ARRAYSIZE(exePath));
+		auto hr = charWritten > 0 ? S_OK : HRESULT_FROM_WIN32(::GetLastError());
 
-		return HRESULT_FROM_WIN32(::RegSetKeyValue(
-			HKEY_CURRENT_USER,
-			key,
-			nullptr,
-			REG_SZ,
-			reinterpret_cast<const BYTE*>(exePath),
-			dataSize));
+		if (SUCCEEDED(hr))
+		{
+			// We don't need to worry about overflow here as ::GetModuleFileName won't
+			// return anything bigger than the max file system path (much fewer than max of DWORD).
+			DWORD dataSize = static_cast<DWORD>((::wcslen(exePath) + 1) * sizeof(WCHAR));
+			auto key = LR"(SOFTWARE\Classes\CLSID\{B23D2B18-8DD7-403A-B9B7-152B40A1478C}\LocalServer32)";
+
+			return HRESULT_FROM_WIN32(::RegSetKeyValue(
+				HKEY_CURRENT_USER,
+				key,
+				nullptr,
+				REG_SZ,
+				reinterpret_cast<const BYTE*>(exePath),
+				dataSize));
+		}
+
+		return hr;
 	}
 
 	_Use_decl_annotations_
