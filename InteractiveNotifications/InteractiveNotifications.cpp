@@ -53,6 +53,7 @@ typedef HandleT<CoTaskMemStringTraits> CoTaskMemString;
 const wchar_t Shortcut[] = LR"(Microsoft\Windows\Start Menu\Slack.lnk)";
 
 #define __CSID "B23D2B18-8DD7-403A-B9B7-152B40A1478C"
+#define __PROTOCOL "myapp://"
 
 // For the app to be activated from Action Center, it needs to provide a COM server to be called
 // when the notification is activated.  The CLSID of the object needs to be registered with the
@@ -87,7 +88,13 @@ public:
 		std::wstring wToastArgs(invokedArgs);
 		std::string toastArgs = InteractiveNotifications::ws2utf8hex(wToastArgs);
 
-		std::string cmd = "myapp://" + toastArgs + "&userData=[{" + args + "}]";
+		std::string cmd = toastArgs + "&userData=[{" + args + "}]";
+
+		// Append protocol if not already present
+		if (cmd.find(__PROTOCOL) != 0) {
+			cmd = __PROTOCOL + cmd;
+		}
+
 		std::wstring wCmd = InteractiveNotifications::s2ws(cmd);
 
 		ShellExecuteW(NULL,
