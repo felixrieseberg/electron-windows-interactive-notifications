@@ -20,5 +20,6 @@ namespace InteractiveNotifications {
 	INTERACTIVENOTIFICATIONS_API HRESULT RegisterComServer();
 	INTERACTIVENOTIFICATIONS_API HRESULT RegisterActivator();
 	INTERACTIVENOTIFICATIONS_API void UnregisterActivator();
+	INTERACTIVENOTIFICATIONS_API std::string ws2utf8hex(const std::wstring&);
 	INTERACTIVENOTIFICATIONS_API std::wstring s2ws(const std::string&);
 }

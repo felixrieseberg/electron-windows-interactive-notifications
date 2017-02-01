@@ -77,73 +77,17 @@ public:
 			std::wstring wvalue(lvalue);
 			std::wstring wkey(lkey);
 
-			std::string value(wvalue.begin(), wvalue.end());
-			std::string key(wkey.begin(), wkey.end());
+			std::string value = InteractiveNotifications::ws2utf8hex(wvalue);
+			std::string key = InteractiveNotifications::ws2utf8hex(wkey);
 
 			args = args + "\"key\":\"" + key + "\"";
 			args = args + ",\"value\":\"" + value + "\"";
 		}
 
 		std::wstring wToastArgs(invokedArgs);
-		std::string toastArgs(wToastArgs.begin(), wToastArgs.end());
+		std::string toastArgs = InteractiveNotifications::ws2utf8hex(wToastArgs);
 
-		// If you ever want to use system() or similar calls,
-		// you'll need to escape stuff. We're using ShellExecute,
-		// so we don't have to.
-
-		// std::string escapedArgs = "";
-		// for (char ch : args) {
-		// 	switch (ch) {
-		// 	case ' ': escapedArgs += "%20"; break;
-		// 	case '&': escapedArgs += "^&"; break;
-		// 	case '\\': escapedArgs += "^\\"; break;
-		// 	case '<': escapedArgs += "^<"; break;
-		// 	case '>': escapedArgs += "^>"; break;
-		// 	case '|': escapedArgs += "^|"; break;
-		// 	case '^': escapedArgs += "^^"; break;
-		// 	case '"': escapedArgs += "^%22"; break;
-		// 	default: escapedArgs += ch; break;
-		// 	}
-		// }
-		//
-		// std::string escapedToastArgs = "";
-		// for (char ch : toastArgs) {
-		// 	switch (ch) {
-		// 	case ' ': escapedToastArgs += "%20"; break;
-		// 	case '&': escapedToastArgs += "^&"; break;
-		// 	case '\\': escapedToastArgs += "^\\"; break;
-		// 	case '<': escapedToastArgs += "^<"; break;
-		// 	case '>': escapedToastArgs += "^>"; break;
-		// 	case '|': escapedToastArgs += "^|"; break;
-		// 	case '^': escapedToastArgs += "^^"; break;
-		// 	case '"': escapedToastArgs += "%22"; break;
-		// 	default: escapedToastArgs += ch; break;
-		// 	}
-		// }
-
-		// std::string systemCmd = "myapp://" + escapedToastArgs + "^&userData=[{" + escapedArgs + "}]";
-
-		std::string escapedToastArgs = "";
-		for (char ch : toastArgs) {
-			switch (ch) {
-			case ' ': escapedToastArgs += "%20"; break;
-			case '"': escapedToastArgs += "%22"; break;
-			default: escapedToastArgs += ch; break;
-			}
-		}
-
-		std::string escapedArgs = "";
-		for (char ch : args) {
-			switch (ch) {
-			case ' ': escapedArgs += "%20"; break;
-			case '"': escapedArgs += "%22"; break;
-			case '\n': escapedArgs += "%5Cn"; break;
-			case '\r': escapedArgs += "%5Cr"; break;
-			default: escapedArgs += ch; break;
-			}
-		}
-
-		std::string cmd = "myapp://" + escapedToastArgs + "&userData=[{" + escapedArgs + "}]";
+		std::string cmd = "myapp://" + toastArgs + "&userData=[{" + args + "}]";
 		std::wstring wCmd = InteractiveNotifications::s2ws(cmd);
 
 		ShellExecuteW(NULL,
@@ -284,6 +228,25 @@ namespace InteractiveNotifications
 	{
 		Module<OutOfProc>::GetModule().UnregisterObjects();
 		Module<OutOfProc>::GetModule().DecrementObjectCount();
+	}
+
+	INTERACTIVENOTIFICATIONS_API std::string ws2utf8hex(const std::wstring &input) {
+		std::string output;
+		int cbNeeded = WideCharToMultiByte(CP_UTF8, 0, input.c_str(), -1, NULL, 0, NULL, NULL);
+
+		if (cbNeeded > 0) {
+			char *utf8 = new char[cbNeeded];
+			if (WideCharToMultiByte(CP_UTF8, 0, input.c_str(), -1, utf8, cbNeeded, NULL, NULL) != 0) {
+				for (char *p = utf8; *p; *p++) {
+					char onehex[5];
+					_snprintf_s(onehex, sizeof(onehex), "%%%02.2X", (unsigned char)*p);
+					output.append(onehex);
+				}
+			}
+			delete[] utf8;
+		}
+
+		return output;
 	}
 
 	INTERACTIVENOTIFICATIONS_API std::wstring s2ws(const std::string& s)
