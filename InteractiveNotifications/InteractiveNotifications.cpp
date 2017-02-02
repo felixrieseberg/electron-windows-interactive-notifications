@@ -42,11 +42,11 @@ using namespace Microsoft::WRL::Wrappers;
 
 struct CoTaskMemStringTraits
 {
-	typedef PWSTR Type;
+  typedef PWSTR Type;
 
-	inline static bool Close(_In_ Type h) throw() { ::CoTaskMemFree(h); return true; }
+  inline static bool Close(_In_ Type h) throw() { ::CoTaskMemFree(h); return true; }
 
-	inline static Type GetInvalidValue() throw() { return nullptr; }
+  inline static Type GetInvalidValue() throw() { return nullptr; }
 };
 typedef HandleT<CoTaskMemStringTraits> CoTaskMemString;
 
@@ -60,233 +60,242 @@ const wchar_t Shortcut[] = LR"(Microsoft\Windows\Start Menu\Slack.lnk)";
 // OS via its shortcut so that it knows who to call later.
 class DECLSPEC_UUID(__CSID) NotificationActivator WrlSealed WrlFinal
 : public RuntimeClass < RuntimeClassFlags<ClassicCom>,
-	INotificationActivationCallback >
+  INotificationActivationCallback >
 {
 public:
-	virtual HRESULT STDMETHODCALLTYPE Activate(
-		_In_ LPCWSTR appUserModelId,
-		_In_ LPCWSTR invokedArgs,
-		_In_reads_(dataCount) const NOTIFICATION_USER_INPUT_DATA* data,
-		ULONG dataCount) override
-	{
-		std::string args;
+  virtual HRESULT STDMETHODCALLTYPE Activate(
+    _In_ LPCWSTR appUserModelId,
+    _In_ LPCWSTR invokedArgs,
+    _In_reads_(dataCount) const NOTIFICATION_USER_INPUT_DATA* data,
+    ULONG dataCount) override
+  {
+    std::string args;
 
-		for (int i = 0; i < dataCount; i++) {
-			LPCWSTR lvalue = data[i].Value;
-			LPCWSTR lkey = data[i].Key;
+    for (int i = 0; i < dataCount; i++) {
+      LPCWSTR lvalue = data[i].Value;
+      LPCWSTR lkey = data[i].Key;
 
-			std::wstring wvalue(lvalue);
-			std::wstring wkey(lkey);
+      std::wstring wvalue(lvalue);
+      std::wstring wkey(lkey);
 
-			std::string value = InteractiveNotifications::ws2utf8hex(wvalue);
-			std::string key = InteractiveNotifications::ws2utf8hex(wkey);
+      std::string value = InteractiveNotifications::ws2utf8hex(wvalue);
+      std::string key = InteractiveNotifications::ws2utf8hex(wkey);
 
-			args = args + "\"key\":\"" + key + "\"";
-			args = args + ",\"value\":\"" + value + "\"";
-		}
+      args = args + "%22key%22:%22" + key + "%22";
+      args = args + ",%22value%22:%22" + value + "%22";
+    }
 
-		std::wstring wToastArgs(invokedArgs);
-		std::string toastArgs = InteractiveNotifications::ws2utf8hex(wToastArgs);
+    std::wstring wToastArgs(invokedArgs);
+    std::string toastArgs = InteractiveNotifications::ws2utf8hex(wToastArgs);
+    std::string escapedToastArgs = "";
 
-		std::string cmd = toastArgs + "&userData=[{" + args + "}]";
+    for (char ch : toastArgs) {
+      switch (ch) {
+        case ' ': escapedToastArgs += "%20"; break;
+        case '"': escapedToastArgs += "%22"; break;
+        default: escapedToastArgs += ch; break;
+      }
+    }
 
-		// Append protocol if not already present
-		if (cmd.find(__PROTOCOL) != 0) {
-			cmd = __PROTOCOL + cmd;
-		}
+    std::string cmd = escapedToastArgs + "&userData=[{" + args + "}]";
 
-		std::wstring wCmd = InteractiveNotifications::s2ws(cmd);
+    // Append protocol if not already present
+    if (cmd.find(__PROTOCOL) != 0) {
+      cmd = __PROTOCOL + cmd;
+    }
 
-		ShellExecuteW(NULL,
-			TEXT("open"),
-			wCmd.c_str(),
-			NULL,
-			NULL,
-			SW_SHOWNORMAL);
+    std::wstring wCmd = InteractiveNotifications::s2ws(cmd);
 
-		return HRESULT();
-	}
+    ShellExecuteW(NULL,
+      TEXT("open"),
+      wCmd.c_str(),
+      NULL,
+      NULL,
+      SW_SHOWNORMAL);
+
+    return HRESULT();
+  }
 };
 CoCreatableClass(NotificationActivator);
 
 namespace InteractiveNotifications
 {
-	INTERACTIVENOTIFICATIONS_API HRESULT RegisterAppForNotificationSupport(PCWSTR shortcut, PCWSTR appId)
-	{
-		CoTaskMemString appData;
-		auto hr = ::SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, appData.GetAddressOf());
+  INTERACTIVENOTIFICATIONS_API HRESULT RegisterAppForNotificationSupport(PCWSTR shortcut, PCWSTR appId)
+  {
+    CoTaskMemString appData;
+    auto hr = ::SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, appData.GetAddressOf());
 
-		if (SUCCEEDED(hr))
-		{
-			wchar_t shortcutPath[MAX_PATH];
+    if (SUCCEEDED(hr))
+    {
+      wchar_t shortcutPath[MAX_PATH];
 
-			hr = ::PathCchCombine(shortcutPath, ARRAYSIZE(shortcutPath), appData.Get(), shortcut);
+      hr = ::PathCchCombine(shortcutPath, ARRAYSIZE(shortcutPath), appData.Get(), shortcut);
 
-			if (SUCCEEDED(hr))
-			{
-				DWORD attributes = ::GetFileAttributes(shortcutPath);
-				bool fileExists = attributes < 0xFFFFFFF;
+      if (SUCCEEDED(hr))
+      {
+        DWORD attributes = ::GetFileAttributes(shortcutPath);
+        bool fileExists = attributes < 0xFFFFFFF;
 
-				if (!fileExists)
-				{
-					// Todo: This is probably the wrong path bc Squirrel
-					wchar_t exePath[MAX_PATH];
-					DWORD charWritten = ::GetModuleFileName(nullptr, exePath, ARRAYSIZE(exePath));
-					hr = charWritten > 0 ? S_OK : HRESULT_FROM_WIN32(::GetLastError());
+        if (!fileExists)
+        {
+          // Todo: This is probably the wrong path bc Squirrel
+          wchar_t exePath[MAX_PATH];
+          DWORD charWritten = ::GetModuleFileName(nullptr, exePath, ARRAYSIZE(exePath));
+          hr = charWritten > 0 ? S_OK : HRESULT_FROM_WIN32(::GetLastError());
 
-					if (SUCCEEDED(hr))
-					{
-						hr = InstallShortcut(shortcutPath, exePath, appId);
-						if (SUCCEEDED(hr))
-						{
-							hr = RegisterComServer();
-						}
-					}
-				}
-			}
-		}
+          if (SUCCEEDED(hr))
+          {
+            hr = InstallShortcut(shortcutPath, exePath, appId);
+            if (SUCCEEDED(hr))
+            {
+              hr = RegisterComServer();
+            }
+          }
+        }
+      }
+    }
 
-		return hr;
-	}
+    return hr;
+  }
 
-	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API HRESULT InstallShortcut(PCWSTR shortcutPath, PCWSTR exePath, PCWSTR appId)
-	{
-		ComPtr<IShellLink> shellLink;
-		HRESULT hr = CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&shellLink));
+  _Use_decl_annotations_
+  INTERACTIVENOTIFICATIONS_API HRESULT InstallShortcut(PCWSTR shortcutPath, PCWSTR exePath, PCWSTR appId)
+  {
+    ComPtr<IShellLink> shellLink;
+    HRESULT hr = CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&shellLink));
 
-		if (!SUCCEEDED(hr)) return hr;
-		hr = shellLink->SetPath(exePath);
+    if (!SUCCEEDED(hr)) return hr;
+    hr = shellLink->SetPath(exePath);
 
-		if (!SUCCEEDED(hr)) return hr;
-		ComPtr<IPropertyStore> propertyStore;
-		hr = shellLink.As(&propertyStore);
+    if (!SUCCEEDED(hr)) return hr;
+    ComPtr<IPropertyStore> propertyStore;
+    hr = shellLink.As(&propertyStore);
 
-		if (!SUCCEEDED(hr)) return hr;
-		PROPVARIANT propVar;
-		propVar.vt = VT_LPWSTR;
-		propVar.pwszVal = const_cast<PWSTR>(appId); // for _In_ scenarios, we don't need a copy
-		hr = propertyStore->SetValue(PKEY_AppUserModel_ID, propVar);
+    if (!SUCCEEDED(hr)) return hr;
+    PROPVARIANT propVar;
+    propVar.vt = VT_LPWSTR;
+    propVar.pwszVal = const_cast<PWSTR>(appId); // for _In_ scenarios, we don't need a copy
+    hr = propertyStore->SetValue(PKEY_AppUserModel_ID, propVar);
 
-		if (!SUCCEEDED(hr)) return hr;
-		propVar.vt = VT_CLSID;
-		propVar.puuid = const_cast<CLSID*>(&__uuidof(NotificationActivator));
-		hr = propertyStore->SetValue(PKEY_AppUserModel_ToastActivatorCLSID, propVar);
+    if (!SUCCEEDED(hr)) return hr;
+    propVar.vt = VT_CLSID;
+    propVar.puuid = const_cast<CLSID*>(&__uuidof(NotificationActivator));
+    hr = propertyStore->SetValue(PKEY_AppUserModel_ToastActivatorCLSID, propVar);
 
-		if (!SUCCEEDED(hr)) return hr;
-		hr = propertyStore->Commit();
+    if (!SUCCEEDED(hr)) return hr;
+    hr = propertyStore->Commit();
 
-		if (!SUCCEEDED(hr)) return hr;
-		ComPtr<IPersistFile> persistFile;
-		hr = shellLink.As(&persistFile);
+    if (!SUCCEEDED(hr)) return hr;
+    ComPtr<IPersistFile> persistFile;
+    hr = shellLink.As(&persistFile);
 
-		if (!SUCCEEDED(hr)) return hr;
-		hr = persistFile->Save(shortcutPath, TRUE);
+    if (!SUCCEEDED(hr)) return hr;
+    hr = persistFile->Save(shortcutPath, TRUE);
 
-		return hr;
-	}
+    return hr;
+  }
 
-	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API HRESULT RegisterComServer()
-	{
-		wchar_t exePath[MAX_PATH];
-		DWORD charWritten = ::GetModuleFileName(nullptr, exePath, ARRAYSIZE(exePath));
-		auto hr = charWritten > 0 ? S_OK : HRESULT_FROM_WIN32(::GetLastError());
+  _Use_decl_annotations_
+  INTERACTIVENOTIFICATIONS_API HRESULT RegisterComServer()
+  {
+    wchar_t exePath[MAX_PATH];
+    DWORD charWritten = ::GetModuleFileName(nullptr, exePath, ARRAYSIZE(exePath));
+    auto hr = charWritten > 0 ? S_OK : HRESULT_FROM_WIN32(::GetLastError());
 
-		if (SUCCEEDED(hr))
-		{
-			// We don't need to worry about overflow here as ::GetModuleFileName won't
-			// return anything bigger than the max file system path (much fewer than max of DWORD).
-			DWORD dataSize = static_cast<DWORD>((::wcslen(exePath) + 1) * sizeof(WCHAR));
-			auto key = LR"(SOFTWARE\Classes\CLSID\{B23D2B18-8DD7-403A-B9B7-152B40A1478C}\LocalServer32)";
+    if (SUCCEEDED(hr))
+    {
+      // We don't need to worry about overflow here as ::GetModuleFileName won't
+      // return anything bigger than the max file system path (much fewer than max of DWORD).
+      DWORD dataSize = static_cast<DWORD>((::wcslen(exePath) + 1) * sizeof(WCHAR));
+      auto key = LR"(SOFTWARE\Classes\CLSID\{B23D2B18-8DD7-403A-B9B7-152B40A1478C}\LocalServer32)";
 
-			return HRESULT_FROM_WIN32(::RegSetKeyValue(
-				HKEY_CURRENT_USER,
-				key,
-				nullptr,
-				REG_SZ,
-				reinterpret_cast<const BYTE*>(exePath),
-				dataSize));
-		}
+      return HRESULT_FROM_WIN32(::RegSetKeyValue(
+        HKEY_CURRENT_USER,
+        key,
+        nullptr,
+        REG_SZ,
+        reinterpret_cast<const BYTE*>(exePath),
+        dataSize));
+    }
 
-		return hr;
-	}
+    return hr;
+  }
 
-	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API HRESULT RegisterActivator()
-	{
-		// Module<OutOfProc> needs a callback registered before it can be used.
-		// Since we don't care about when it shuts down, we'll pass an empty lambda here.
-		// If we need to clean up, do it here (we probably don't have to)
-		Module<OutOfProc>::Create([] {});
+  _Use_decl_annotations_
+  INTERACTIVENOTIFICATIONS_API HRESULT RegisterActivator()
+  {
+    // Module<OutOfProc> needs a callback registered before it can be used.
+    // Since we don't care about when it shuts down, we'll pass an empty lambda here.
+    // If we need to clean up, do it here (we probably don't have to)
+    Module<OutOfProc>::Create([] {});
 
-		// If a local server process only hosts the COM object then COM expects
-		// the COM server host to shutdown when the references drop to zero.
-		// Since the user might still be using the program after activating the notification,
-		// we don't want to shutdown immediately.  Incrementing the object count tells COM that
-		// we aren't done yet.
-		Module<OutOfProc>::GetModule().IncrementObjectCount();
+    // If a local server process only hosts the COM object then COM expects
+    // the COM server host to shutdown when the references drop to zero.
+    // Since the user might still be using the program after activating the notification,
+    // we don't want to shutdown immediately.  Incrementing the object count tells COM that
+    // we aren't done yet.
+    Module<OutOfProc>::GetModule().IncrementObjectCount();
 
-		return Module<OutOfProc>::GetModule().RegisterObjects();
-	}
+    return Module<OutOfProc>::GetModule().RegisterObjects();
+  }
 
-	_Use_decl_annotations_
-	INTERACTIVENOTIFICATIONS_API void UnregisterActivator()
-	{
-		Module<OutOfProc>::GetModule().UnregisterObjects();
-		Module<OutOfProc>::GetModule().DecrementObjectCount();
-	}
+  _Use_decl_annotations_
+  INTERACTIVENOTIFICATIONS_API void UnregisterActivator()
+  {
+    Module<OutOfProc>::GetModule().UnregisterObjects();
+    Module<OutOfProc>::GetModule().DecrementObjectCount();
+  }
 
-	INTERACTIVENOTIFICATIONS_API std::string ws2utf8hex(const std::wstring &input) {
-		std::string output;
-		int cbNeeded = WideCharToMultiByte(CP_UTF8, 0, input.c_str(), -1, NULL, 0, NULL, NULL);
+  INTERACTIVENOTIFICATIONS_API std::string ws2utf8hex(const std::wstring &input) {
+    std::string output;
+    int cbNeeded = WideCharToMultiByte(CP_UTF8, 0, input.c_str(), -1, NULL, 0, NULL, NULL);
 
-		if (cbNeeded > 0) {
-			char *utf8 = new char[cbNeeded];
-			if (WideCharToMultiByte(CP_UTF8, 0, input.c_str(), -1, utf8, cbNeeded, NULL, NULL) != 0) {
-				for (char *p = utf8; *p; *p++) {
-					char onehex[5];
-					_snprintf_s(onehex, sizeof(onehex), "%%%02.2X", (unsigned char)*p);
-					output.append(onehex);
-				}
-			}
-			delete[] utf8;
-		}
+    if (cbNeeded > 0) {
+      char *utf8 = new char[cbNeeded];
+      if (WideCharToMultiByte(CP_UTF8, 0, input.c_str(), -1, utf8, cbNeeded, NULL, NULL) != 0) {
+        for (char *p = utf8; *p; *p++) {
+          char onehex[5];
+          _snprintf_s(onehex, sizeof(onehex), "%%%02.2X", (unsigned char)*p);
+          output.append(onehex);
+        }
+      }
+      delete[] utf8;
+    }
 
-		return output;
-	}
+    return output;
+  }
 
-	INTERACTIVENOTIFICATIONS_API std::wstring s2ws(const std::string& s)
-	{
-		int len;
-		int slength = (int)s.length() + 1;
+  INTERACTIVENOTIFICATIONS_API std::wstring s2ws(const std::string& s)
+  {
+    int len;
+    int slength = (int)s.length() + 1;
 
-		len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
+    len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
 
-		wchar_t* buf = new wchar_t[len];
+    wchar_t* buf = new wchar_t[len];
 
-		MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
-		std::wstring r(buf);
-		delete[] buf;
+    MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
+    std::wstring r(buf);
+    delete[] buf;
 
-		return r;
-	}
+    return r;
+  }
 }
 
 extern "C"
 {
-	__declspec(dllexport) void CRegisterForNotificationSupport(PCWSTR shortcut, PCWSTR appId)
-	{
-		InteractiveNotifications::RegisterAppForNotificationSupport(shortcut, appId);
-	}
+  __declspec(dllexport) void CRegisterForNotificationSupport(PCWSTR shortcut, PCWSTR appId)
+  {
+    InteractiveNotifications::RegisterAppForNotificationSupport(shortcut, appId);
+  }
 
-	__declspec(dllexport) void CRegisterActivator()
-	{
-		InteractiveNotifications::RegisterActivator();
-	}
+  __declspec(dllexport) void CRegisterActivator()
+  {
+    InteractiveNotifications::RegisterActivator();
+  }
 
-	__declspec(dllexport) void CUnregisterActivator()
-	{
-		InteractiveNotifications::UnregisterActivator();
-	}
+  __declspec(dllexport) void CUnregisterActivator()
+  {
+    InteractiveNotifications::UnregisterActivator();
+  }
 }
