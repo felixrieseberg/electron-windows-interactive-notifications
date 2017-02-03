@@ -86,7 +86,7 @@ public:
     }
 
     std::wstring wToastArgs(invokedArgs);
-    std::string toastArgs = InteractiveNotifications::ws2utf8hex(wToastArgs);
+    std::string toastArgs(wToastArgs.begin(), wToastArgs.end());
     std::string escapedToastArgs = "";
 
     for (char ch : toastArgs) {
