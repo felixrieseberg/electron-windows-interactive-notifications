@@ -37,7 +37,19 @@ function getAppPackage () {
 
 function getConfiguration() {
   return new Promise((resolve) => {
-    fs.stat(CONFIG_FILE, (err, result) => resolve(!!(err || !result)))
+    fs.readFile(CONFIG_FILE, { encoding: 'utf-8' }, (err, result) => {
+      if (err || !result) {
+        return false
+      }
+
+      try {
+        result = JSON.parse(result)
+      } catch (e) {
+        return false
+      }
+
+      return result
+    })
   })
 }
 
