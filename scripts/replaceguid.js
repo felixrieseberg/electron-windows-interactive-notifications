@@ -75,6 +75,8 @@ function getClsid () {
 
 /**
  * Replaces the CLSID in the C++ source files
+ *
+ * @returns {string} CLSID
  */
 function replaceCLSID () {
   const newClsid = getClsid()
@@ -86,6 +88,7 @@ function replaceCLSID () {
   console.log(`###########################################################\n`)
 
   replaceSync(cppFile, DEFINED_CLSID, newClsid)
+  return newClsid;
 }
 
 module.exports = replaceCLSID

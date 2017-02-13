@@ -8,5 +8,14 @@
   FormatID: {9F4C2855-9F79-4B39-A8D0-E1D42DE1D5F3}, 26
 */
 
-require('./replaceguid')()
-require('./replaceprotocol')()
+const { getConfiguration, setConfiguration } = require('./utils')
+
+getConfiguration()
+  .then((configuration) => {
+    if (configuration) return;
+
+    const guid = require('./replaceguid')()
+    const protocol = require('./replaceprotocol')()
+
+    setConfiguration({guid, protocol})
+  })

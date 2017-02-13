@@ -52,6 +52,8 @@ function getProtocol () {
 
 /**
  * Replaces the protocol in the C++ source files
+ *
+ * @returns {string}
  */
 function replaceProtocol () {
   const newProtocol = getProtocol()
@@ -63,6 +65,7 @@ function replaceProtocol () {
   console.log(`###########################################################\n`)
 
   replaceSync(cppFile, DEFINED_PROTOCOL, newProtocol)
+  return newProtocol
 }
 
 module.exports = replaceProtocol

@@ -1,6 +1,8 @@
 const fs = require('fs')
 const path = require('path')
 
+const CONFIG_FILE = path.join(__dirname, '.ewin-configured')
+
 function replaceSync (file, find, replace) {
   const contents = fs.readFileSync(file, 'utf8')
   const newContents = contents.replace(find, replace)
@@ -33,4 +35,14 @@ function getAppPackage () {
   return package
 }
 
-module.exports = { replaceSync, getAppPackage }
+function getConfiguration() {
+  return new Promise((resolve) => {
+    fs.stat(CONFIG_FILE, (err, result) => resolve(!!(err || !result)))
+  })
+}
+
+function setConfiguration(configuration) {
+  fs.writeFileSync(CONFIG_FILE, JSON.stringify(configuration), { encoding: 'utf-8' })
+}
+
+module.exports = { replaceSync, getAppPackage, getConfiguration, setConfiguration }
