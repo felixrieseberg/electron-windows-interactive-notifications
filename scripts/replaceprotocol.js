@@ -40,10 +40,11 @@ function getProtocolFromPackage () {
  * @returns {string}
  */
 function getProtocol () {
-  let protocol = getProtocolFromEnvironment() || getProtocolFromPackage()
+  let protocol = getProtocolFromEnvironment() || getProtocolFromPackage();
 
   if (!protocol) {
-    throw new Error('No protocol defined, please consult windows-interactive-notifications readme!')
+    console.warn('No protocol defined, please consult windows-interactive-notifications readme!')
+    protocol = DEFINED_PROTOCOL
   }
 
   return protocol
