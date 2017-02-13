@@ -39,16 +39,16 @@ function getConfiguration() {
   return new Promise((resolve) => {
     fs.readFile(CONFIG_FILE, { encoding: 'utf-8' }, (err, result) => {
       if (err || !result) {
-        return false
+        resolve(false)
       }
 
       try {
         result = JSON.parse(result)
       } catch (e) {
-        return false
+        resolve(false)
       }
 
-      return result
+      resolve(result)
     })
   })
 }
